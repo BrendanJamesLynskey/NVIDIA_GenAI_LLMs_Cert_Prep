@@ -26,10 +26,12 @@ The `scripts/` directory contains the actual commands, heavily annotated. The RE
 
 | Card | VRAM | Architecture | sm | FP8 tensor cores | Recommended precision |
 |---|---|---|---|---|---|
-| RTX 4000 Ada | 20 GB | Ada Lovelace | sm_89 | Yes | **FP8 (W8A8)** |
+| RTX 4000 Ada | 20 GB | Ada Lovelace | sm_89 | Likely no (AD104) — verify per the per-SKU list below | **INT8 (W8A8 SmoothQuant) or INT4 AWQ** |
 | RTX 3080 | 10 GB | Ampere | sm_86 | No | **INT8 (W8A8 SmoothQuant) or INT4 AWQ** |
 
-FP8 requires Ada Lovelace (sm_89) or Hopper (sm_90) hardware. Attempting to build an FP8 engine on the RTX 3080 will produce either a build error or silent fallback to a less optimal kernel — do not target FP8 on Ampere. The RTX 4000 Ada has 20 GB GDDR6, enough headroom to build and serve a 1B-parameter FP8 engine with room for a calibration dataset and KV cache.
+**FP8 enablement on Ada is per-SKU, not per-architecture.** Per [`NVIDIA_GPU_30_Ada_Low_Level`](https://github.com/BrendanJamesLynskey/NVIDIA_GPU_30_Ada_Low_Level), 4th-gen tensor cores have FP8 enabled only on **L40S, L40, and RTX 6000 Ada** (AD102-based datacenter/top-workstation cards); FP8 is fused off on the rest of the Ada line, including the consumer RTX 40 cards and the mid-range Ada workstation cards. The RTX 4000 Ada uses the AD104 die — the same family as RTX 4070 Ti — and is not on the FP8-enabled list. Treat FP8 on RTX 4000 Ada as not available; if you find a NVIDIA driver or container note that contradicts this, prefer the more recent NVIDIA source. INT8 SmoothQuant and INT4 AWQ are the realistic precisions on both cards in this exercise. The FP8 commands below are kept as reference for users with an FP8-capable Ada SKU (L40S/L40/RTX 6000 Ada) or any Hopper card (H100/H200/GH200).
+
+Attempting to build an FP8 engine on the RTX 3080 will produce either a build error or silent fallback to a less optimal kernel — do not target FP8 on Ampere. On the RTX 4000 Ada, an FP8 build is expected to fail at kernel selection time given the fused-off tensor cores; verify with a small calibration run before relying on it. Both cards have enough headroom for a 1B-parameter INT8 engine with room for a calibration dataset and KV cache.
 
 For a full discussion of quantisation formats and their memory implications, see [notes/08_inference_optimisation.md](../../notes/08_inference_optimisation.md).
 

@@ -76,10 +76,15 @@ Exercises requiring TensorRT-LLM or Triton are Docker-based and have been smoke-
 | [exercises/02_attention_from_scratch/](exercises/02_attention_from_scratch/) | Scaled dot-product and multi-head attention in NumPy and PyTorch, with correctness checks against `torch.nn.functional` |
 | [exercises/03_lora_finetune_minimal/](exercises/03_lora_finetune_minimal/) | End-to-end LoRA fine-tune on Qwen2.5-0.5B-Instruct — adapter training, inference, and smoke test |
 | [exercises/04_triton_serving_demo/](exercises/04_triton_serving_demo/) | Docker-compose Triton Inference Server demo — ONNX model, Python client, metrics walkthrough |
-| [exercises/05_tensorrt_llm_quantisation/](exercises/05_tensorrt_llm_quantisation/) | TensorRT-LLM engine build walkthrough — FP8 (RTX 4000 Ada) and INT8/INT4 (RTX 3080) quantisation |
+| [exercises/05_tensorrt_llm_quantisation/](exercises/05_tensorrt_llm_quantisation/) | TensorRT-LLM engine build walkthrough — INT8/INT4 paths on RTX 3080 and RTX 4000 Ada; FP8 reference for FP8-enabled SKUs (L40S/L40/RTX 6000 Ada/Hopper) |
 | [mock\_interviews/](mock_interviews/) | Mock question banks for NCA-GENL and NCP-GENL, plus system-design and behavioural sets |
 | [cheatsheets/](cheatsheets/) | Concise one-pager cheatsheets — transformer maths, quantisation, sampling, NVIDIA stack |
-| [presentations/](presentations/) | Slide decks for five key topic areas |
+| [presentations/](presentations/) | Five self-contained HTML decks (zero-dependency, dark theme, NVIDIA green) |
+| [presentations/01_transformer_architecture/](presentations/01_transformer_architecture/) | Decoder-only transformer end to end — tokens, embeddings, attention, KV cache, decoding |
+| [presentations/02_rag_deep_dive/](presentations/02_rag_deep_dive/) | RAG from embedding model selection through to production evaluation |
+| [presentations/03_peft_and_fine_tuning/](presentations/03_peft_and_fine_tuning/) | PEFT, LoRA/QLoRA/DoRA, RLHF, DPO, Constitutional AI, VRAM budgeting |
+| [presentations/04_inference_optimisation/](presentations/04_inference_optimisation/) | KV cache, paged attention, in-flight batching, FP8/FP4 quantisation, speculative decoding |
+| [presentations/05_nvidia_stack_overview/](presentations/05_nvidia_stack_overview/) | The NVIDIA AI stack — driver to NIM, with a decision matrix |
 | [diagrams/](diagrams/) | Architecture diagrams referenced from notes |
 | [SYLLABUS.md](SYLLABUS.md) | Both cert tiers mapped row-by-row to notes files, exercises, and cross-reference repos |
 | [STUDY\_PLAN.md](STUDY_PLAN.md) | 12-week study plan — NCA weeks 1–6, NCP weeks 7–12, ~6 hours/week |
@@ -115,5 +120,8 @@ Part of the [LLMs hub](https://github.com/BrendanJamesLynskey/LLMs) — an index
 
 | Cert | Status | Notes |
 | --- | --- | --- |
+| Repository | scaffolding complete | All seven build phases shipped — notes, cheatsheets, exercises, mock interviews, presentations |
 | NCA-GENL | in-prep | targeting Q3 2026 |
 | NCP-GENL | not started | follows NCA |
+
+Last build pass: 2026-04-27. Exercise code is written but not hardware-verified — smoke-test before relying on it.

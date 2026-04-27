@@ -24,7 +24,7 @@ The NVIDIA software ecosystem is layered. From silicon to application:
 ├────────────────────────────────────────────────────────────────┤
 │  CUDA Toolkit (13.x as of April 2026) + CUDA Runtime          │
 ├────────────────────────────────────────────────────────────────┤
-│  GPU Driver (R595+ for CUDA 13.x)                              │
+│  GPU Driver (≥ 580 for CUDA 13.x)                              │
 ├────────────────────────────────────────────────────────────────┤
 │  GPU Hardware (Ampere / Ada / Hopper / Blackwell)              │
 └────────────────────────────────────────────────────────────────┘
