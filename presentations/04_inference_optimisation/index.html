@@ -1,10 +1,1385 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Inference Optimisation — Stub</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inference Optimisation &mdash; NVIDIA GenAI Cert Prep</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #0d1117;
+            --bg-code: #161b22;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #76B900;
+            --accent-dim: #76B90044;
+            --accent-glow: #76B90033;
+            --border: #21262d;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+        .hero > * { position: relative; z-index: 1; }
+        .series-label {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+        .hero h1 .accent { color: var(--accent); }
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+        .tags {
+            display: flex; flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2.5rem;
+        }
+        .tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+            white-space: nowrap;
+        }
+        .pipeline {
+            display: flex; flex-wrap: wrap;
+            align-items: center; justify-content: center;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+            max-width: var(--max-width);
+        }
+        .pipeline-step {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            padding: 0.3rem 0.7rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .pipeline-arrow { color: var(--accent); font-size: 0.9rem; font-weight: 700; }
+        .slide {
+            min-height: 100vh;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .slide-number {
+            font-family: var(--font-display);
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--accent-dim);
+            position: absolute;
+            top: 2rem; right: 1.5rem;
+            line-height: 1;
+            user-select: none;
+        }
+        .slide h2 {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            line-height: 1.25;
+        }
+        .slide h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .slide p { margin-bottom: 1rem; color: var(--text-secondary); }
+        .slide p strong { color: var(--text-primary); }
+        .slide ul, .slide ol { margin-bottom: 1rem; padding-left: 1.5rem; color: var(--text-secondary); }
+        .slide li { margin-bottom: 0.4rem; }
+        .slide li strong { color: var(--text-primary); }
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 1.25rem 0;
+            overflow: hidden;
+        }
+        .code-header {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            background: rgba(118, 185, 0, 0.08);
+            padding: 0.4rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .code-block pre { margin: 0; padding: 1rem; overflow-x: auto; }
+        .code-block code {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #c9d1d9;
+        }
+        .kw { color: #ff7b72; }
+        .fn { color: #d2a8ff; }
+        .str { color: #a5d6ff; }
+        .cm { color: #8b949e; font-style: italic; }
+        .num { color: #79c0ff; }
+        .type { color: #ffa657; }
+        .dir { color: #ff7b72; }
+        .table-wrap {
+            overflow-x: auto;
+            margin: 1.25rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th {
+            background: var(--bg-code);
+            color: var(--accent);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-family: var(--font-display);
+            white-space: nowrap;
+        }
+        td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background: rgba(13, 17, 23, 0.5); }
+        td strong { color: var(--text-primary); }
+        .diagram-flow {
+            display: flex; flex-wrap: wrap;
+            align-items: center; justify-content: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .diagram-box {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            text-align: center;
+            white-space: nowrap;
+        }
+        .diagram-box.accent {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(118, 185, 0, 0.08);
+        }
+        .diagram-box.dim { color: var(--text-secondary); border-color: var(--border); }
+        .diagram-arrow { color: var(--accent); font-size: 1.3rem; font-weight: 700; }
+        .diagram-vertical {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 0.3rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .diagram-vertical .diagram-arrow { font-size: 1.1rem; }
+        .diagram-grid {
+            display: grid;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .diagram-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .diagram-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .diagram-panel {
+            padding: 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+        .diagram-panel.accent-border { border-left: 3px solid var(--accent); }
+        .diagram-panel h4 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .diagram-panel p, .diagram-panel ul { font-size: 0.85rem; }
+        .callout {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            padding: 1rem 1.25rem;
+            margin: 1.25rem 0;
+        }
+        .callout p { margin-bottom: 0; }
+        .callout .callout-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+        .tier-visual {
+            display: flex; flex-direction: column;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .tier-bar { display: flex; align-items: center; gap: 0.75rem; }
+        .tier-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            min-width: 90px;
+            text-align: right;
+        }
+        .tier-fill {
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 0 0.75rem;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+        .contents-list {
+            list-style: none;
+            padding-left: 0;
+            counter-reset: contents;
+        }
+        .contents-list li {
+            counter-increment: contents;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .contents-list li:last-child { border-bottom: none; }
+        .contents-list li::before {
+            content: counter(contents, decimal-leading-zero);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            min-width: 2rem;
+        }
+        .contents-list a { color: var(--text-primary); text-decoration: none; transition: color 0.2s; }
+        .contents-list a:hover { color: var(--accent); }
+        .footer {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .canvas-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.25rem 0;
+            overflow-x: auto;
+        }
+        .canvas-wrap svg { display: block; margin: 0 auto; max-width: 100%; }
+        .badge {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 0.1rem 0.45rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            vertical-align: middle;
+            margin-left: 0.3rem;
+        }
+        .badge.ok  { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+        .badge.warn { border-color: #ffa657; color: #ffa657; background: rgba(255,166,87,0.08); }
+        .badge.bad  { border-color: #ff7b72; color: #ff7b72; background: rgba(255,123,114,0.08); }
+        .notes-toggle {
+            position: fixed;
+            top: 1rem; right: 1rem;
+            z-index: 100;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.35rem 0.8rem;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .notes-toggle:hover { color: var(--accent); border-color: var(--accent); }
+        .notes-toggle.active { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+        .speaker-notes {
+            display: none;
+            background: rgba(118,185,0,0.05);
+            border: 1px dashed var(--accent);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .speaker-notes .notes-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.4rem;
+        }
+        body.show-notes .speaker-notes { display: block; }
+        @media (max-width: 640px) {
+            .slide { padding: 3rem 1rem; min-height: auto; }
+            .slide-number { font-size: 3rem; top: 1.5rem; right: 1rem; }
+            .slide h2 { font-size: 1.5rem; }
+            .diagram-grid.cols-2, .diagram-grid.cols-3 { grid-template-columns: 1fr; }
+            .pipeline { gap: 0.15rem; }
+            .pipeline-step { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
+            .hero h1 { font-size: 1.8rem; }
+            table { font-size: 0.78rem; }
+        }
+    </style>
 </head>
 <body>
-<p>Stub — Phase 6 fills this.</p>
+
+<button class="notes-toggle" id="notesBtn" onclick="document.body.classList.toggle('show-notes');this.classList.toggle('active');this.textContent=document.body.classList.contains('show-notes')?'Hide notes':'Show notes'">Show notes</button>
+
+<header class="hero">
+    <div class="series-label">NVIDIA GenAI Cert Prep &mdash; Deck 04</div>
+    <h1><span class="accent">Inference Optimisation</span></h1>
+    <p class="subtitle">The single largest NCP domain at 17%. KV cache arithmetic, PagedAttention, continuous batching, FlashAttention, quantisation, speculative decoding, multi-LoRA, and the framework landscape.</p>
+    <div class="tags">
+        <span class="tag">KV Cache</span><span class="tag">PagedAttention</span>
+        <span class="tag">FlashAttention</span><span class="tag">Quantisation</span>
+        <span class="tag">AWQ</span><span class="tag">GPTQ</span><span class="tag">FP8</span>
+        <span class="tag">Speculative</span><span class="tag">TensorRT-LLM</span><span class="tag">vLLM</span>
+    </div>
+    <div class="pipeline">
+        <span class="pipeline-step">Weights</span><span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Quantise</span><span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Engine</span><span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">KV cache</span><span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">IFB</span><span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Serve</span>
+    </div>
+</header>
+
+<!-- 00 Contents -->
+<section class="slide" id="slide-00">
+    <div class="slide-number">00</div>
+    <h2>Topics Covered</h2>
+    <p>Twenty-two sections from first principles to exam prep. Work linearly or jump to the section you need.</p>
+    <ul class="contents-list">
+        <li><a href="#slide-01">Cert Framing</a></li>
+        <li><a href="#slide-02">The Throughput / Latency / Memory Triangle</a></li>
+        <li><a href="#slide-03">KV Cache &mdash; Formula and Worked Example</a></li>
+        <li><a href="#slide-04">KV Cache Memory Scaling &mdash; Diagram</a></li>
+        <li><a href="#slide-05">PagedAttention</a></li>
+        <li><a href="#slide-06">Continuous / In-Flight Batching</a></li>
+        <li><a href="#slide-07">FlashAttention v1 / v2 / v3</a></li>
+        <li><a href="#slide-08">Quantisation Formats &mdash; Reference Table</a></li>
+        <li><a href="#slide-09">Weight-Only vs Weight-and-Activation Quantisation</a></li>
+        <li><a href="#slide-10">AWQ vs GPTQ</a></li>
+        <li><a href="#slide-11">FP8 and FP4 &mdash; Hardware-Native Precision</a></li>
+        <li><a href="#slide-12">KV Cache Quantisation</a></li>
+        <li><a href="#slide-13">Speculative Decoding</a></li>
+        <li><a href="#slide-14">Multi-LoRA Inference</a></li>
+        <li><a href="#slide-15">Inference Framework Matrix</a></li>
+        <li><a href="#slide-16">TensorRT-LLM In Depth</a></li>
+        <li><a href="#slide-17">Hardware Mapping &mdash; RTX 3080 vs RTX 4000 Ada</a></li>
+        <li><a href="#slide-18">Worked Latency Budget</a></li>
+        <li><a href="#slide-19">Optimisation Priority List</a></li>
+        <li><a href="#slide-20">GQA / MQA &mdash; Reducing KV Head Count</a></li>
+        <li><a href="#slide-21">Exam Angles</a></li>
+        <li><a href="#slide-22">Cross-References</a></li>
+    </ul>
+</section>
+
+<!-- 01 Cert framing -->
+<section class="slide" id="slide-01">
+    <div class="slide-number">01</div>
+    <h2>Cert Framing</h2>
+    <p><strong>Model Optimisation is 17% of the NCP-GENL exam</strong> &mdash; the single largest domain. GPU Acceleration and Optimisation adds a further 14%. Together they account for nearly a third of the exam and both require a working understanding of the inference stack.</p>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>NCP-GENL domains (selected)</h4>
+            <ul>
+                <li>Model Optimisation &mdash; <strong style="color:var(--accent)">17%</strong></li>
+                <li>GPU Acceleration &amp; Optimisation &mdash; 14%</li>
+                <li>Model Deployment &mdash; 9%</li>
+                <li>Production Monitoring &amp; Reliability &mdash; 7%</li>
+            </ul>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>What the exam expects</h4>
+            <ul>
+                <li>Numerical reasoning: KV cache formula, bit-width arithmetic</li>
+                <li>Technique selection: which optimisation targets which bottleneck</li>
+                <li>Framework knowledge: TensorRT-LLM, vLLM, SGLang feature sets</li>
+                <li>Hardware awareness: Ampere vs Hopper vs Ada capability differences</li>
+            </ul>
+        </div>
+    </div>
+    <div class="callout">
+        <div class="callout-label">Study approach</div>
+        <p>Every optimisation technique in this deck maps to a specific vertex of the throughput/latency/memory triangle on the next slide. Knowing <em>which vertex</em> an optimisation addresses is the most efficient way to reason through exam scenarios.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>17% + 14% = roughly 31 exam questions on inference and GPU performance topics. No other single domain pairing comes close. The cert page to verify domain weights: https://www.nvidia.com/en-us/learn/certification/generative-ai-llm-professional/</p>
+    </aside>
+</section>
+
+<!-- 02 Triangle -->
+<section class="slide" id="slide-02">
+    <div class="slide-number">02</div>
+    <h2>The Throughput / Latency / Memory Triangle</h2>
+    <p>Three coupled constraints. Every inference optimisation technique addresses one or more vertices. Understanding the coupling is more useful than a list of names.</p>
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 700 300" width="700" height="300" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <style>
+                    .t-lbl { fill:#8b949e; font-family:'JetBrains Mono',monospace; font-size:11px; }
+                    .t-hdr { fill:#e6edf3; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; }
+                    .t-acc { fill:#76B900; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; }
+                    .t-body { fill:#8b949e; font-family:'Inter',sans-serif; font-size:10px; }
+                </style>
+            </defs>
+            <!-- triangle fill -->
+            <polygon points="350,18 70,270 630,270" fill="rgba(118,185,0,0.05)" stroke="#76B900" stroke-width="1.5"/>
+            <!-- vertex: Throughput (top) -->
+            <text x="350" y="13" class="t-acc" text-anchor="middle">THROUGHPUT</text>
+            <text x="350" y="26" class="t-lbl" text-anchor="middle">tok/s across all requests; large batches; high arithmetic intensity</text>
+            <!-- vertex: Memory (bottom-left) -->
+            <text x="70" y="288" class="t-acc" text-anchor="middle">MEMORY</text>
+            <text x="70" y="299" class="t-lbl" text-anchor="middle">HBM: model weights + KV cache</text>
+            <!-- vertex: Latency (bottom-right) -->
+            <text x="630" y="288" class="t-acc" text-anchor="middle">LATENCY</text>
+            <text x="630" y="299" class="t-lbl" text-anchor="middle">TTFT (prefill) + TPOT (decode)</text>
+            <!-- interior annotations -->
+            <text x="350" y="120" class="t-hdr" text-anchor="middle">Quantisation</text>
+            <text x="350" y="134" class="t-body" text-anchor="middle">shrinks memory, improves throughput, may reduce accuracy</text>
+            <text x="195" y="195" class="t-hdr" text-anchor="middle">KV management</text>
+            <text x="195" y="208" class="t-body" text-anchor="middle">PagedAttention, GQA, KV quant</text>
+            <text x="505" y="195" class="t-hdr" text-anchor="middle">Batching strategy</text>
+            <text x="505" y="208" class="t-body" text-anchor="middle">IFB: throughput vs tail latency</text>
+        </svg>
+    </div>
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel accent-border">
+            <h4>TTFT</h4>
+            <p>Time To First Token. Prefill phase &mdash; processes entire input in parallel. <strong>Compute-bound.</strong> FlashAttention and fast GPUs reduce TTFT.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>TPOT</h4>
+            <p>Time Per Output Token. Autoregressive decode &mdash; one token per forward pass. <strong>Memory-bandwidth-bound</strong> at batch&nbsp;1: weights stream from HBM each step.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>The coupling</h4>
+            <p>Larger batch &rarr; higher throughput, higher per-request latency. Lower precision &rarr; smaller footprint, potential accuracy cost. Continuous batching is the lever that decouples throughput from tail latency most effectively.</p>
+        </div>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>TPOT being memory-bandwidth-bound at batch 1 is the key insight for why quantisation helps decode: with one request in flight, you stream model weights from HBM to compute a matmul against a single vector. Arithmetic intensity approaches zero. Fetching INT4 weights (half the bytes of FP16) directly halves the bandwidth requirement per step, improving TPOT proportionally.</p>
+    </aside>
+</section>
+
+<!-- 03 KV Cache formula -->
+<section class="slide" id="slide-03">
+    <div class="slide-number">03</div>
+    <h2>KV Cache &mdash; Formula and Worked Example</h2>
+    <p>The KV cache is the dominant memory consumer at long context. The exam will ask you to compute its size from architecture parameters.</p>
+    <div class="code-block">
+        <div class="code-header">KV cache footprint formula</div>
+        <pre><code>KV_bytes = <span class="num">2</span> &times; n_layers &times; n_kv_heads &times; head_dim &times; seq_len &times; bytes_per_element
+
+Factor of <span class="num">2</span>: one tensor for K, one for V.
+n_kv_heads may be &lt; n_query_heads when GQA or MQA is used.</code></pre>
+    </div>
+    <h3>Worked example: 7B model, 4 096-token context, FP16</h3>
+    <p>Architecture: 32 layers, 32 KV heads, head dimension 128, FP16 (2 bytes per element).</p>
+    <div class="code-block">
+        <div class="code-header">KV cache per sequence at 4k context, FP16</div>
+        <pre><code><span class="num">2</span> &times; <span class="num">32</span> layers &times; <span class="num">32</span> kv_heads &times; <span class="num">128</span> head_dim &times; <span class="num">4096</span> tokens &times; <span class="num">2</span> bytes
+= 2,147,483,648 bytes &asymp; <span class="num">2 GB per sequence</span>
+
+At batch size 8:  8 &times; 2 GB = <span class="num">16 GB</span> for KV alone.
+7B weights at FP16 occupy &asymp; 14 GB.
+Total: 30 GB &mdash; exceeds RTX 4000 Ada 20 GB without optimisation.</code></pre>
+    </div>
+    <h3>Primary levers for reducing KV footprint</h3>
+    <ul>
+        <li><strong>GQA / MQA</strong> &mdash; reduce <code>n_kv_heads</code>. Llama 3 70B uses 8 KV heads vs 64 query heads: 8&times; reduction.</li>
+        <li><strong>KV quantisation</strong> &mdash; reduce <code>bytes_per_element</code> from 2 (FP16) to 1 (INT8 or FP8): 2&times; reduction.</li>
+        <li><strong>Shorter context or chunked prefill</strong> &mdash; <code>seq_len</code> is linear in KV size but quadratic in attention FLOP cost.</li>
+    </ul>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>A common exam trap: confuse linear KV scaling with quadratic attention compute scaling. For the KV cache, doubling seq_len doubles KV bytes. For attention FLOP count, doubling seq_len quadruples compute (L^2 scaling in standard attention). FlashAttention doesn't change the quadratic FLOP count — it just keeps the intermediate L&times;L matrix out of HBM, which is a different optimisation.</p>
+    </aside>
+</section>
+
+<!-- 04 KV Scaling SVG -->
+<section class="slide" id="slide-04">
+    <div class="slide-number">04</div>
+    <h2>KV Cache Memory Scaling</h2>
+    <p>KV cache grows linearly with sequence length. At long context it eclipses the model weight footprint. GQA and INT8 quantisation are the two main mitigations.</p>
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 700 340" width="700" height="340" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <style>
+                    .ax  { stroke:#21262d; stroke-width:1; }
+                    .gl  { stroke:#21262d; stroke-width:0.5; stroke-dasharray:3 3; }
+                    .sl  { fill:#8b949e; font-family:'JetBrains Mono',monospace; font-size:10px; }
+                    .ln1 { fill:none; stroke:#76B900; stroke-width:2.5; }
+                    .ln2 { fill:none; stroke:#ffa657; stroke-width:2; stroke-dasharray:8 4; }
+                    .ln3 { fill:none; stroke:#a5d6ff; stroke-width:2; stroke-dasharray:4 4; }
+                    .wfill{ fill:rgba(118,185,0,0.12); }
+                </style>
+            </defs>
+            <!-- axes -->
+            <line x1="75" y1="20" x2="75" y2="278" class="ax"/>
+            <line x1="75" y1="278" x2="660" y2="278" class="ax"/>
+            <!-- x grid + labels: 1k 2k 4k 8k 16k 32k 64k -->
+            <line x1="156" y1="20" x2="156" y2="278" class="gl"/>
+            <line x1="238" y1="20" x2="238" y2="278" class="gl"/>
+            <line x1="319" y1="20" x2="319" y2="278" class="gl"/>
+            <line x1="400" y1="20" x2="400" y2="278" class="gl"/>
+            <line x1="481" y1="20" x2="481" y2="278" class="gl"/>
+            <line x1="562" y1="20" x2="562" y2="278" class="gl"/>
+            <line x1="643" y1="20" x2="643" y2="278" class="gl"/>
+            <text x="156" y="293" class="sl" text-anchor="middle">1k</text>
+            <text x="238" y="293" class="sl" text-anchor="middle">2k</text>
+            <text x="319" y="293" class="sl" text-anchor="middle">4k</text>
+            <text x="400" y="293" class="sl" text-anchor="middle">8k</text>
+            <text x="481" y="293" class="sl" text-anchor="middle">16k</text>
+            <text x="562" y="293" class="sl" text-anchor="middle">32k</text>
+            <text x="643" y="293" class="sl" text-anchor="middle">64k</text>
+            <text x="370" y="313" class="sl" text-anchor="middle">Sequence length (tokens)</text>
+            <!-- y grid + labels: each 4 GB = ~31 px  (scale: 278-20=258px for 0..34 GB) -->
+            <!-- 0 GB=278, 4 GB=247, 8 GB=216, 16 GB=154, 32 GB=30 -->
+            <line x1="75" y1="247" x2="660" y2="247" class="gl"/><text x="68" y="250" class="sl" text-anchor="end">4 GB</text>
+            <line x1="75" y1="216" x2="660" y2="216" class="gl"/><text x="68" y="219" class="sl" text-anchor="end">8 GB</text>
+            <line x1="75" y1="154" x2="660" y2="154" class="gl"/><text x="68" y="157" class="sl" text-anchor="end">16 GB</text>
+            <line x1="75" y1="30"  x2="660" y2="30"  class="gl"/><text x="68" y="33"  class="sl" text-anchor="end">32 GB</text>
+            <text x="68" y="281" class="sl" text-anchor="end">0</text>
+            <!-- Weight band: 7B FP16 ~14 GB = 278 - 14*(258/34) = 278 - 106 = 172px -->
+            <rect x="75" y="165" width="585" height="13" class="wfill"/>
+            <text x="655" y="174" class="sl" text-anchor="end" style="fill:#76B900;font-size:9px">~14 GB 7B weights FP16</text>
+            <!-- KV FP16, 32 KV heads:
+                 at seq s: bytes = 2*32*32*128*s*2 = 536870912*s
+                 per token: 524288 bytes = 0.5 MB
+                 at 1k: 0.5 GB; 2k: 1 GB; 4k: 2 GB; 8k: 4 GB; 16k: 8 GB; 32k: 16 GB; 64k: 32 GB
+                 y = 278 - gb*(258/34)   where 258/34 = 7.588 px/GB
+                 1k=>0.5GB: 278-3.8=274.2; 2k=>1GB:278-7.6=270.4; 4k=>2GB:278-15.2=262.8
+                 8k=>4GB:278-30.4=247.6; 16k=>8GB:278-60.8=217.2; 32k=>16GB:278-121.5=156.5; 64k=>32GB=278-243=35 -->
+            <polyline points="75,278 156,274.2 238,270.4 319,262.8 400,247.6 481,217.2 562,156.5 643,35" class="ln1"/>
+            <!-- KV INT8, 32 KV heads (half FP16):
+                 1k: 0.25GB; 2k:0.5GB; 4k:1GB; 8k:2GB; 16k:4GB; 32k:8GB; 64k:16GB
+                 y: 75->277.1; 156->276.1; 238->274.2; 319->270.4; 400->262.8; 481->247.6; 562->217.2; 643->156.5 -->
+            <polyline points="75,278 156,276.1 238,274.2 319,270.4 400,262.8 481,247.6 562,217.2 643,156.5" class="ln2"/>
+            <!-- KV FP16, 8 KV heads (GQA, 1/4 of 32-head FP16):
+                 1k:0.125GB; 4k:0.5GB; 8k:1GB; 16k:2GB; 32k:4GB; 64k:8GB
+                 y: 75->277.1; 156->277.1; 238->276.5; 319->274.2; 400->270.4; 481->262.8; 562->247.6; 643->217.2 -->
+            <polyline points="75,278 156,277.1 238,276.5 319,274.2 400,270.4 481,262.8 562,247.6 643,217.2" class="ln3"/>
+            <!-- legend -->
+            <line x1="80" y1="323" x2="108" y2="323" stroke="#76B900" stroke-width="2.5"/>
+            <text x="113" y="327" class="sl">KV FP16, 32 KV heads</text>
+            <line x1="250" y1="323" x2="278" y2="323" stroke="#ffa657" stroke-width="2" stroke-dasharray="8 4"/>
+            <text x="283" y="327" class="sl">KV INT8, 32 KV heads</text>
+            <line x1="430" y1="323" x2="458" y2="323" stroke="#a5d6ff" stroke-width="2" stroke-dasharray="4 4"/>
+            <text x="463" y="327" class="sl">KV FP16, 8 KV heads (GQA)</text>
+        </svg>
+    </div>
+    <p>At 64k context, FP16 KV with 32 heads needs &asymp;32 GB per sequence &mdash; impossible on any single consumer GPU. Either GQA (8 heads, 8&times; reduction) or INT8 quantisation (2&times; reduction) is required for extended context on constrained hardware.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>All y-axis values are exact formula results: KV_bytes = 2 * 32 * n_kv_heads * 128 * seq_len * bytes_per_element. For 32 KV heads FP16: 2*32*32*128*s*2 = 524288*s bytes. At 4096 tokens: 524288*4096 = 2,147,483,648 = 2 GB. The GQA line is exactly 1/4 of the 32-head FP16 line (32 heads / 8 heads). No benchmarks involved.</p>
+    </aside>
+</section>
+
+<!-- 05 PagedAttention -->
+<section class="slide" id="slide-05">
+    <div class="slide-number">05</div>
+    <h2>PagedAttention</h2>
+    <p><strong>Kwon et al., 2023 &mdash; arXiv:2309.06180 (the vLLM paper).</strong> Borrowed from OS virtual memory: manage KV cache as pages rather than contiguous allocations.</p>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Before PagedAttention</h4>
+            <p>Each request pre-allocates a contiguous KV block for its maximum possible output length. Because output length is unknown at request time, systems reserve the worst case.</p>
+            <ul>
+                <li>20&ndash;80% of KV allocation wasted (internal fragmentation)</li>
+                <li>Hard batch-size ceiling from worst-case reserves</li>
+                <li>No sharing of identical prompt prefixes across concurrent requests</li>
+            </ul>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>With PagedAttention</h4>
+            <p>KV cache split into fixed-size <em>blocks</em> (pages), each holding keys and values for a fixed number of tokens. A per-request page table maps logical indices to physical memory locations.</p>
+            <ul>
+                <li>Near-zero internal fragmentation (only last block partially filled)</li>
+                <li>Prefix caching: one copy of a shared system prompt, referenced by many requests via copy-on-write</li>
+                <li>2&ndash;4&times; throughput improvement vs FasterTransformer (from the vLLM paper)</li>
+            </ul>
+        </div>
+    </div>
+    <div class="diagram-vertical">
+        <div class="diagram-box">Request arrives with prompt</div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box">Block manager allocates pages for prompt KV</div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box">Each new token fills next slot in current block</div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box">Block full &rarr; allocate next free block (anywhere in HBM)</div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box accent">Sequence finishes &rarr; all blocks returned to free pool</div>
+    </div>
+    <div class="callout">
+        <div class="callout-label">Prefix caching payoff</div>
+        <p>A 1k-token system prompt used by every request is prefilled once; all concurrent requests reference the same KV blocks. On a busy API server this can eliminate &gt;50% of prefill FLOP costs.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>PagedAttention does not change attention arithmetic. The attention kernel still sees valid KV data via page table indirection. The exam point: before PagedAttention, fragmentation &mdash; not total VRAM &mdash; was the binding constraint on batch size. Fragmentation means allocated but unused memory; PagedAttention eliminates it.</p>
+    </aside>
+</section>
+
+<!-- 06 Continuous Batching -->
+<section class="slide" id="slide-06">
+    <div class="slide-number">06</div>
+    <h2>Continuous / In-Flight Batching</h2>
+    <p>Static batching idles GPU slots waiting for the longest sequence. Continuous batching reclaims those slots at the iteration level.</p>
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 700 240" width="700" height="240" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <style>
+                    .clbl { fill:#8b949e; font-family:'JetBrains Mono',monospace; font-size:10px; }
+                    .chdr { fill:#e6edf3; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:12px; }
+                    .ca { fill:rgba(118,185,0,0.35); stroke:#76B900; stroke-width:1; }
+                    .cb { fill:rgba(165,214,255,0.3); stroke:#a5d6ff; stroke-width:1; }
+                    .cc { fill:rgba(255,166,87,0.3); stroke:#ffa657; stroke-width:1; }
+                    .id { fill:rgba(50,50,50,0.4); stroke:#444; stroke-width:1; stroke-dasharray:2 2; }
+                    .ax { stroke:#21262d; }
+                </style>
+            </defs>
+            <text x="8" y="14" class="chdr">Static batching &mdash; GPU idles until every request in the batch finishes</text>
+            <line x1="72" y1="18" x2="72" y2="94" class="ax"/>
+            <line x1="72" y1="94" x2="692" y2="94" class="ax"/>
+            <text x="65" y="34" class="clbl" text-anchor="end">req A</text>
+            <rect x="72" y="20" width="604" height="14" class="ca"/>
+            <text x="65" y="54" class="clbl" text-anchor="end">req B</text>
+            <rect x="72" y="40" width="120" height="14" class="cb"/>
+            <rect x="192" y="40" width="484" height="14" class="id"/>
+            <text x="65" y="74" class="clbl" text-anchor="end">req C</text>
+            <rect x="72" y="60" width="240" height="14" class="cc"/>
+            <rect x="312" y="60" width="364" height="14" class="id"/>
+            <text x="690" y="106" class="clbl" text-anchor="end">batch drains when A finishes</text>
+
+            <text x="8" y="130" class="chdr">Continuous batching &mdash; new requests join as slots free</text>
+            <line x1="72" y1="135" x2="72" y2="215" class="ax"/>
+            <line x1="72" y1="215" x2="692" y2="215" class="ax"/>
+            <text x="65" y="151" class="clbl" text-anchor="end">slot 0</text>
+            <rect x="72" y="137" width="604" height="14" class="ca"/>
+            <text x="65" y="171" class="clbl" text-anchor="end">slot 1</text>
+            <rect x="72" y="157" width="120" height="14" class="cb"/>
+            <rect x="192" y="157" width="200" height="14" class="cc"/>
+            <rect x="392" y="157" width="284" height="14" class="cb"/>
+            <text x="65" y="191" class="clbl" text-anchor="end">slot 2</text>
+            <rect x="72" y="177" width="240" height="14" class="cc"/>
+            <rect x="312" y="177" width="160" height="14" class="ca"/>
+            <rect x="472" y="177" width="204" height="14" class="cc"/>
+            <text x="420" y="228" class="clbl" text-anchor="middle">new request fills slot when previous sequence completes</text>
+        </svg>
+    </div>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Static batching (the baseline)</h4>
+            <ul>
+                <li>GPU utilisation: 20&ndash;40% on variable-length chat traffic</li>
+                <li>Tail latency: dominated by the longest sequence in the batch</li>
+                <li>New requests queue until the entire batch drains</li>
+            </ul>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Continuous batching (IFB)</h4>
+            <ul>
+                <li>GPU utilisation: 60&ndash;90% on the same traffic pattern</li>
+                <li>New request admitted within one decode step once a slot frees</li>
+                <li>Implemented in TensorRT-LLM C++ runtime and vLLM at the iteration level</li>
+            </ul>
+        </div>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>TensorRT-LLM calls this "in-flight fused batching" (IFB). vLLM calls it "continuous batching". SGLang has the same mechanism under a different name. They are all the same concept: the active request set is recomputed every decode step. The utilisation figures (20-40% vs 60-90%) are from the TRT-LLM and vLLM documentation respectively and reflect typical chat workloads with variable output lengths, not fixed-output benchmarks.</p>
+    </aside>
+</section>
+
+<!-- 07 FlashAttention -->
+<section class="slide" id="slide-07">
+    <div class="slide-number">07</div>
+    <h2>FlashAttention v1 / v2 / v3</h2>
+    <p>Standard attention materialises the full L&times;L score matrix in HBM. FlashAttention avoids this with a tiled algorithm that keeps intermediate results in on-chip SRAM.</p>
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel accent-border">
+            <h4>FlashAttention v1 (2022)</h4>
+            <p>arXiv:2205.14135. IO-optimal tiling: HBM reads/writes drop from O(L&sup2;) to O(L). The L&times;L score matrix is never materialised in HBM; softmax normalisers are recomputed on-chip. Up to 3&times; speedup on GPT-2 at 1k tokens; 16k training sequences became practical.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>FlashAttention v2 (2023)</h4>
+            <p>arXiv:2307.08691. Reached 50&ndash;73% peak FLOPs/s on A100 (v1 achieved ~25%). Fewer non-matmul ops; parallelism across sequence dimension; better warp-level work distribution. Roughly 2&times; over v1.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>FlashAttention v3</h4>
+            <p>Targets Hopper hardware specifically: FP8 tensor cores and async pipeline features (WGMMA/TMA). On consumer Ampere/Ada hardware, v2 is the relevant implementation.</p>
+        </div>
+    </div>
+    <h3>What FlashAttention does and does not solve</h3>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Aspect</th><th>Helps?</th><th>Reason</th></tr></thead>
+            <tbody>
+                <tr><td>Prefill speed (TTFT)</td><td><span class="badge ok">Yes</span></td><td>Optimises the L&times;L compute in the prefill phase directly</td></tr>
+                <tr><td>Long-context training</td><td><span class="badge ok">Yes</span></td><td>16k+ sequence lengths become practical in HBM</td></tr>
+                <tr><td>KV cache size (memory)</td><td><span class="badge bad">No</span></td><td>KV cache still exists; FlashAttention is a compute/IO optimisation, not memory reduction</td></tr>
+                <tr><td>Decode TPOT</td><td><span class="badge warn">Marginal</span></td><td>Decode is weight-bandwidth-bound; attention is not the dominant per-step cost</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>The most common exam trap: FlashAttention does NOT reduce the KV cache. The KV vectors must still exist in HBM for autoregressive generation. FlashAttention is an IO optimisation for the matmul itself. To reduce KV cache size: use GQA (fewer KV heads), KV quantisation (fewer bytes per element), or shorter context. This distinction is canonical for the cert.</p>
+    </aside>
+</section>
+
+<!-- 08 Quantisation table -->
+<section class="slide" id="slide-08">
+    <div class="slide-number">08</div>
+    <h2>Quantisation Formats &mdash; Reference Table</h2>
+    <p>Precision determines memory footprint, throughput, and which hardware provides native acceleration. Know this table for numerical and selection questions.</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Format</th><th>Bits</th><th>Bytes/weight</th><th>Range (approx.)</th><th>Native HW</th><th>Primary use</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>FP32</td><td>32</td><td>4</td><td>&plusmn;3.4&times;10&sup3;&sup8;</td><td>All</td><td>Training; inference reference only</td></tr>
+                <tr><td>BF16</td><td>16</td><td>2</td><td>&plusmn;3.4&times;10&sup3;&sup8; (8-bit exp)</td><td>Ampere+, Hopper</td><td>Baseline serving; FP32 range with less mantissa</td></tr>
+                <tr><td>FP16</td><td>16</td><td>2</td><td>&plusmn;65 504</td><td>All modern NVIDIA</td><td>Baseline serving; narrower range than BF16</td></tr>
+                <tr><td>FP8 E4M3</td><td>8</td><td>1</td><td>&plusmn;448</td><td>Hopper, Ada</td><td>W+A inference; best accuracy at 8-bit</td></tr>
+                <tr><td>FP8 E5M2</td><td>8</td><td>1</td><td>&plusmn;57 344</td><td>Hopper, Ada</td><td>Gradient storage during training</td></tr>
+                <tr><td>INT8</td><td>8</td><td>1</td><td>&minus;128 to +127</td><td>Ampere+ tensor cores</td><td>SmoothQuant W8A8; solid accuracy on A100</td></tr>
+                <tr><td>NVFP4 / MX-FP4</td><td>4</td><td>0.5</td><td>Limited; micro-block scaling</td><td>Blackwell (B100, B200)</td><td>Maximum throughput; calibration required</td></tr>
+                <tr><td>INT4 (AWQ/GPTQ)</td><td>4</td><td>0.5</td><td>&minus;8 to +7</td><td>All (dequant to FP16)</td><td>Weight-only; consumer GPU decode</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="callout">
+        <div class="callout-label">BF16 vs FP16</div>
+        <p>BF16 has the same 8-bit exponent as FP32 (same dynamic range) but only 7 mantissa bits. FP16 has 10 mantissa bits but a narrower range (&plusmn;65 504 vs &plusmn;3.4&times;10&sup3;&sup8;). For LLM serving, BF16 is generally preferred because large activations can overflow FP16.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>INT8 tensor cores on Ampere run at roughly 2x the FLOPs of FP16 tensor cores. That is why INT8 W8A8 (SmoothQuant) is relevant even on Ampere-class hardware, not just Hopper. FP8 on Hopper provides the same 2x benefit as INT8 on Ampere but with better numerical properties (floating-point vs integer quantisation). Ada Lovelace has FP8 compute capability but the tensor core FP8 throughput peak is on Hopper.</p>
+    </aside>
+</section>
+
+<!-- 09 Weight-only vs W+A -->
+<section class="slide" id="slide-09">
+    <div class="slide-number">09</div>
+    <h2>Weight-Only vs Weight-and-Activation Quantisation</h2>
+    <p>Two fundamentally different techniques. The distinction is a frequent exam topic because they target different bottlenecks.</p>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Weight-only (AWQ, GPTQ, INT4)</h4>
+            <p>Weights stored at INT4; <strong>dequantised to FP16 before the matmul</strong>. Compute still runs in FP16.</p>
+            <ul>
+                <li><strong>Win:</strong> fewer bytes loaded per weight from HBM &rarr; improves decode TPOT in bandwidth-bound regime</li>
+                <li><strong>No compute benefit:</strong> INT4 tensor cores not used; FP16 matmul runs as before</li>
+                <li><strong>Accuracy:</strong> typically 0.5&ndash;2% degradation at INT4</li>
+                <li><strong>Best for:</strong> consumer GPU decode where HBM bandwidth is the binding constraint</li>
+            </ul>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Weight-and-activation (SmoothQuant, FP8)</h4>
+            <p>Both weights and activations quantised; <strong>matmul runs at INT8 or FP8 on tensor cores</strong>.</p>
+            <ul>
+                <li><strong>Win:</strong> up to 2&times; tensor core throughput (INT8 on Ampere, FP8 on Hopper) plus bandwidth reduction</li>
+                <li><strong>Challenge:</strong> activations have dynamic, per-token range; harder to quantise uniformly</li>
+                <li><strong>SmoothQuant:</strong> migrates quantisation difficulty from activations to weights via per-channel scale factor</li>
+                <li><strong>Best for:</strong> data-centre GPUs (A100, H100) with native INT8/FP8 tensor core throughput</li>
+            </ul>
+        </div>
+    </div>
+    <h3>Calibration vs QAT</h3>
+    <p><strong>PTQ with calibration:</strong> small representative dataset determines per-channel scales post-training. Fast; accuracy loss is higher at INT4. <strong>Quantisation-aware training (QAT):</strong> simulates quantisation in the forward pass during fine-tuning. Recovers accuracy lost by PTQ; requires a training run.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>The key insight: weight-only quantisation improves TPOT because TPOT is memory-bandwidth-bound. INT4 weights are half the size of FP16, so loading them takes half the bandwidth. But prefill TTFT is compute-bound, so weight-only quantisation doesn't help TTFT. Weight-and-activation quantisation can improve both via native tensor core throughput.</p>
+    </aside>
+</section>
+
+<!-- 10 AWQ vs GPTQ -->
+<section class="slide" id="slide-10">
+    <div class="slide-number">10</div>
+    <h2>AWQ vs GPTQ</h2>
+    <p>Both produce INT4 weight-only quantised models via post-training quantisation. They optimise for different objectives.</p>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Aspect</th><th>AWQ</th><th>GPTQ</th></tr></thead>
+            <tbody>
+                <tr><td>Paper</td><td>Lin et al., 2023 &mdash; arXiv:2306.00978</td><td>Frantar et al., 2022 &mdash; arXiv:2210.17323</td></tr>
+                <tr><td>Core method</td><td>Identifies 1% of "salient" weights by activation magnitude; protects them, quantises the rest to INT4</td><td>Layer-wise Hessian-based reconstruction; minimises second-order error in layer output</td></tr>
+                <tr><td>Calibration speed</td><td>Fast (minutes for 7B)</td><td>Slower (minutes to hours for 70B+)</td></tr>
+                <tr><td>Calibration data needed</td><td>Small representative set</td><td>Small representative set</td></tr>
+                <tr><td>Accuracy at INT4</td><td>Slightly better on instruction-tuned models</td><td>Competitive; can edge ahead on some base model benchmarks</td></tr>
+                <tr><td>TensorRT-LLM</td><td>Native (<code>--qformat awq</code>)</td><td>Native (<code>--qformat gptq</code>)</td></tr>
+                <tr><td>vLLM</td><td>Supported</td><td>Supported</td></tr>
+                <tr><td>Prefer when</td><td>Fast iteration; instruction-tuned deployment; Brendan's hardware</td><td>Maximising accuracy at fixed bit-width is primary concern</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="callout">
+        <div class="callout-label">Practical guidance</div>
+        <p>For most production deployments, the accuracy difference between AWQ and GPTQ is below the noise of task-specific evaluation variance. Use AWQ for faster iteration. Always evaluate on your target task metric, not perplexity alone. Both are supported natively in TensorRT-LLM and vLLM.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>AWQ's core claim: 1% of weights (those corresponding to large activation channels) account for most quantisation error. Protecting them while INT4-quantising the remaining 99% preserves quality better than uniform INT4. GPTQ's Hessian approach is more principled but more expensive to compute. In exam scenarios where you must choose one: AWQ for instruction-tuned models, GPTQ when you can afford the calibration time and need to squeeze out extra accuracy.</p>
+    </aside>
+</section>
+
+<!-- 11 FP8 and FP4 -->
+<section class="slide" id="slide-11">
+    <div class="slide-number">11</div>
+    <h2>FP8 and FP4 &mdash; Hardware-Native Precision</h2>
+    <p>Unlike weight-only INT4 (which dequantises before compute), these formats run the matmul itself at reduced precision on dedicated tensor cores.</p>
+    <h3>FP8 &mdash; Hopper (H100) and Ada Lovelace</h3>
+    <p>Two encodings: <strong>E4M3</strong> (4-bit exponent, 3-bit mantissa; range &plusmn;448) and <strong>E5M2</strong> (5-bit exponent, 2-bit mantissa; range &plusmn;57&thinsp;344). For inference, E4M3 is the primary format &mdash; higher precision, lower range. E5M2 is used for gradient storage. H100 FP8 tensor cores deliver roughly <strong>2&times; the FLOPs</strong> of BF16 tensor cores. TensorRT-LLM FP8 quantisation via <code>--qformat fp8</code> is the recommended production path on Hopper.</p>
+    <h3>FP4 &mdash; Blackwell (B100, B200)</h3>
+    <p>NVIDIA's <strong>NVFP4</strong> and the MX-FP4 micro-scaling format apply a shared scale per small block of weights, providing more dynamic range than uniform INT4 within a 4-bit budget. Blackwell FP4 tensor cores provide the highest throughput in the current generation. TensorRT-LLM exposes this via <code>--qformat nvfp4</code>.</p>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Format</th><th>Hardware target</th><th>Weight bits</th><th>Activation bits</th><th>Key benefit</th></tr></thead>
+            <tbody>
+                <tr><td>FP8 E4M3</td><td>Hopper H100; Ada</td><td>8</td><td>8 (FP8)</td><td>~2&times; throughput vs BF16; near-lossless accuracy with calibration</td></tr>
+                <tr><td>NVFP4 / MX-FP4</td><td>Blackwell B100, B200</td><td>4 + block scale</td><td>8 (FP8)</td><td>Maximum throughput; QAT or careful calibration required</td></tr>
+                <tr><td>INT8 SmoothQuant</td><td>Ampere A100; Hopper</td><td>8</td><td>8 (INT8)</td><td>~2&times; throughput on Ampere; reliable accuracy</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>For cert purposes: FP8 = Hopper's native inference format. INT8 = Ampere's native inference format. FP4 = Blackwell's native inference format. A question about "which precision to use on H100" should answer FP8 E4M3. A question about "which precision on A100" should answer INT8 SmoothQuant or W8A8. Brendan's RTX 4000 Ada has FP8 compute capability but peak FP8 tensor core throughput is on Hopper.</p>
+    </aside>
+</section>
+
+<!-- 12 KV Quant -->
+<section class="slide" id="slide-12">
+    <div class="slide-number">12</div>
+    <h2>KV Cache Quantisation</h2>
+    <p>Weight quantisation and KV cache quantisation are independent choices. Quantising the KV cache reduces long-context memory pressure without affecting model weight accuracy.</p>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Why it is separate from weights</h4>
+            <p>KV tensors are computed at inference time from activations. They are not model parameters. Quantising them to INT8 or FP8 post-computation compresses the in-HBM footprint during decoding.</p>
+            <p>TensorRT-LLM separates this as a distinct flag: <code>--kv_cache_dtype fp8</code> or <code>int8</code>, independent of weight quantisation format.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Trade-offs</h4>
+            <ul>
+                <li><strong>Memory win:</strong> INT8 KV halves KV cache size; FP8 KV provides the same halving with marginally better accuracy</li>
+                <li><strong>Accuracy cost:</strong> small but task-dependent; long-context retrieval tasks are most sensitive</li>
+                <li><strong>Hardware:</strong> INT8 KV on Ampere; FP8 KV on Hopper for native dequantise step</li>
+                <li><strong>Combined with INT4 weights:</strong> the most memory-efficient configuration; practical on consumer hardware</li>
+            </ul>
+        </div>
+    </div>
+    <div class="callout">
+        <div class="callout-label">Impact on Brendan's hardware</div>
+        <p>RTX 4000 Ada (20 GB): 7B FP16 model leaves ~6 GB for KV. INT8 KV doubles usable context length or batch size within that budget. RTX 3080 (10 GB): 7B INT4 weights occupy ~4 GB, leaving 6 GB; INT8 KV is essentially mandatory for any serious context length.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>The accuracy cost of KV quantisation is often understated in headline benchmarks. Keys and values lose precision, which affects attention scores — especially for retrieval from early tokens in a long context. Always benchmark KV quantisation on your actual task. Perplexity improvements from longer context may be partially offset by KV quantisation quality loss.</p>
+    </aside>
+</section>
+
+<!-- 13 Speculative decoding -->
+<section class="slide" id="slide-13">
+    <div class="slide-number">13</div>
+    <h2>Speculative Decoding</h2>
+    <p>Autoregressive decoding is sequential by construction. Speculative decoding breaks the serialisation with a draft-then-verify protocol that preserves the target model output distribution exactly.</p>
+    <div class="diagram-vertical">
+        <div class="diagram-box">Draft model generates <em>k</em> candidate tokens (fast; small model or extra heads)</div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box">Target model verifies all <em>k</em> tokens in a single parallel forward pass</div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box">Accept longest matching prefix; reject at first token where draft diverges</div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box accent">On rejection: take target's corrected token; restart draft from there</div>
+    </div>
+    <h3>Speedup arithmetic</h3>
+    <p>Let &alpha; = draft token acceptance rate, k = draft tokens per cycle. Expected tokens per cycle &asymp; 1 + &alpha;&sdot;k (one target token always accepted, plus accepted drafts). At &alpha;&nbsp;=&nbsp;0.8, k&nbsp;=&nbsp;5: expected 5 tokens per verification step instead of 1 &rarr; up to <strong>2&ndash;3&times; TPOT improvement</strong> in practice.</p>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Medusa (Cai et al., 2024 &mdash; arXiv:2401.10774)</h4>
+            <p>Extra decoding heads on the target model; head k predicts token at position +k. No separate draft model. Lower acceptance rates than autoregressive drafts but zero separate-model cost. Supported in TensorRT-LLM.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>EAGLE / EAGLE-3 (Li et al., 2024)</h4>
+            <p>Auto-regressive draft model trained to predict one step ahead at <em>hidden-state level</em>, not token level. Higher acceptance rates than Medusa. EAGLE-3 is the current iteration; natively supported in TensorRT-LLM.</p>
+        </div>
+    </div>
+    <div class="callout">
+        <div class="callout-label">When it fails</div>
+        <p>Below &alpha;&nbsp;&asymp;&nbsp;0.5, speculative decoding adds overhead without throughput gain. Creative generation tasks with broad target distributions see low acceptance rates. Always profile acceptance rate before deploying a speculative setup in production.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>Critical exam point: the output distribution guarantee. Speculative decoding with correct token-level rejection sampling produces outputs identically distributed to the target model alone. It is not an approximation. This distinguishes it from simply using a smaller model. The speedup is real and lossless; the catch is acceptance rate.</p>
+    </aside>
+</section>
+
+<!-- 14 Multi-LoRA -->
+<section class="slide" id="slide-14">
+    <div class="slide-number">14</div>
+    <h2>Multi-LoRA Inference</h2>
+    <p>Fine-tuned LoRA adapters share a base model. Batching cross-adapter requests in a single forward pass avoids reloading base weights on each adapter switch.</p>
+    <div class="diagram-flow">
+        <div class="diagram-box accent">Base weights (shared, in HBM)</div>
+        <span class="diagram-arrow" style="font-size:1.5rem">&darr;</span>
+        <div class="diagram-box">Shared base forward pass for all concurrent requests</div>
+        <span class="diagram-arrow" style="font-size:1.5rem">&darr;</span>
+        <div class="diagram-box">Per-request LoRA delta A&times;B via fused CUDA kernel</div>
+        <span class="diagram-arrow" style="font-size:1.5rem">&darr;</span>
+        <div class="diagram-box accent">Each request uses its own adapter output</div>
+    </div>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>S-LoRA (Sheng et al., 2023)</h4>
+            <p>Unified paging for LoRA adapters with custom BGMV CUDA kernels for batched LoRA computation. Demonstrated hundreds of adapters served from a single GPU. The foundation for vLLM multi-LoRA support.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Punica</h4>
+            <p>Alternative implementation using BGMV (batched grouped matmul for variable ranks). Similar throughput to S-LoRA. Both S-LoRA and Punica underpin vLLM's multi-LoRA serving.</p>
+        </div>
+    </div>
+    <h3>Memory arithmetic</h3>
+    <p>A rank-16 LoRA adapter on a 7B model contributes on the order of 20&ndash;50&thinsp;MB. The base model is ~14&thinsp;GB at FP16. Storing 50 adapters adds 1&ndash;2.5&thinsp;GB. The base model dominates; adapters are inexpensive to keep in VRAM simultaneously.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>Multi-LoRA is relevant for platforms that fine-tune per-user or per-task (medical QA adapter, legal summary adapter, etc.) sharing a single Llama 3 8B base. The cert insight: 100 LoRA adapters consume roughly the same GPU memory as 1, because the 14 GB base dominates and adapters are 20-50 MB each. This enables multi-tenant fine-tuned serving at low incremental cost.</p>
+    </aside>
+</section>
+
+<!-- 15 Framework matrix -->
+<section class="slide" id="slide-15">
+    <div class="slide-number">15</div>
+    <h2>Inference Framework Matrix</h2>
+    <p>For a detailed local-hardware comparison, see <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Local_LLM_Hosting" style="color:var(--accent)">LLM_Hub_Local_LLM_Hosting</a>.</p>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Framework</th><th>Primary strength</th><th>Hardware</th><th>Pick when&hellip;</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>TensorRT-LLM</strong></td>
+                    <td>NVIDIA-optimised throughput; FP8/FP4; IFB; speculative decoding; engine compilation</td>
+                    <td>NVIDIA only (A10G, A100, H100, Ada)</td>
+                    <td>Maximum tok/s in production on NVIDIA; NIM deployment</td>
+                </tr>
+                <tr>
+                    <td><strong>vLLM</strong></td>
+                    <td>PagedAttention; OpenAI-compatible API; broad model zoo; multi-LoRA</td>
+                    <td>NVIDIA + AMD (ROCm)</td>
+                    <td>Good throughput without compilation; rapid deployment; team comfort with Python API</td>
+                </tr>
+                <tr>
+                    <td><strong>SGLang</strong></td>
+                    <td>RadixAttention (prefix caching); structured generation; fast TTFT</td>
+                    <td>NVIDIA</td>
+                    <td>Agentic workloads; structured output; multi-turn with long shared prefixes</td>
+                </tr>
+                <tr>
+                    <td><strong>TGI</strong></td>
+                    <td>HuggingFace ecosystem integration; simple deployment</td>
+                    <td>NVIDIA + AMD + Intel</td>
+                    <td>Already using HF Hub; simpler ops; less throughput tuning needed</td>
+                </tr>
+                <tr>
+                    <td><strong>llama.cpp</strong></td>
+                    <td>CPU + consumer GPU; GGUF quantisation; widest hardware support</td>
+                    <td>CPU, NVIDIA, Apple Metal</td>
+                    <td>Non-NVIDIA hardware; extreme quantisation (Q2&ndash;Q4); CPU-only fallback</td>
+                </tr>
+                <tr>
+                    <td><strong>Ollama</strong></td>
+                    <td>Zero-config local serving; wraps llama.cpp</td>
+                    <td>CPU, NVIDIA, Apple</td>
+                    <td>Individual developer local use; not production-grade</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>Exam framing: "NVIDIA-specific maximum performance, ahead-of-time compiled" = TensorRT-LLM. "Good performance, broad model support, JIT" = vLLM. "Structured output and prefix caching" = SGLang. "Runs anywhere, including CPU" = llama.cpp. Know the distinguishing features, not just the names.</p>
+    </aside>
+</section>
+
+<!-- 16 TensorRT-LLM in depth -->
+<section class="slide" id="slide-16">
+    <div class="slide-number">16</div>
+    <h2>TensorRT-LLM In Depth</h2>
+    <p>Open-source (Apache 2.0 since October 2023) Python/C++ library. For full coverage see <a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_19_TensorRT_LLM" style="color:var(--accent)">NVIDIA_GPU_19_TensorRT_LLM</a>.</p>
+    <div class="diagram-vertical">
+        <div class="diagram-box">Author model with TRT-LLM Python API (or use pre-built recipes for Llama, Mistral, Mixtral, Qwen, Gemma&hellip;)</div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box">Quantise: <code>--qformat fp8 | awq | gptq | nvfp4 | smoothquant</code></div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box"><code>trtllm-build</code> &mdash; kernel fusion, tactic selection, bakes max_batch / max_seq / precision into binary</div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box accent">engine.bin + config.json &mdash; frozen, GPU-architecture-specific</div>
+        <span class="diagram-arrow">&darr;</span>
+        <div class="diagram-box">Triton Inference Server (tensorrtllm_backend) or NIM container</div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Feature</th><th>TensorRT-LLM support</th></tr></thead>
+            <tbody>
+                <tr><td>Quantisation</td><td>FP8 E4M3, NVFP4, INT4 AWQ, INT4 GPTQ, INT8 SmoothQuant</td></tr>
+                <tr><td>In-flight batching</td><td>Yes &mdash; iteration-level in C++ runtime; default when <code>batching_strategy: inflight_fused_batching</code></td></tr>
+                <tr><td>Paged KV cache</td><td>Yes &mdash; configurable block size; prefix caching; host memory offload</td></tr>
+                <tr><td>Speculative decoding</td><td>Draft model, Medusa heads, EAGLE-3</td></tr>
+                <tr><td>Parallelism</td><td>Tensor (TP), pipeline (PP), expert (EP) for MoE</td></tr>
+                <tr><td>Multi-LoRA</td><td>Yes &mdash; multiple adapters, runtime switching</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="callout">
+        <div class="callout-label">Key distinction from vLLM</div>
+        <p>TensorRT-LLM is an <strong>ahead-of-time compiler</strong>. The engine is frozen to a specific GPU architecture, precision, and shape configuration. Build time: 5&ndash;30 minutes for a 70B model. vLLM uses <code>torch.compile</code> JIT. TRT-LLM trades flexibility for maximum throughput; vLLM trades throughput for faster iteration.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>The exam distinguishes TensorRT-LLM (library + engine) from Triton (server). TRT-LLM is not a server. It compiles an engine that Triton loads as a backend. NIM packages both together for zero-config deployment. "What serves the HTTP requests?" = Triton. "What compiles the optimised inference engine?" = TensorRT-LLM. Know this boundary cold.</p>
+    </aside>
+</section>
+
+<!-- 17 Hardware mapping -->
+<section class="slide" id="slide-17">
+    <div class="slide-number">17</div>
+    <h2>Hardware Mapping &mdash; RTX 3080 vs RTX 4000 Ada</h2>
+    <p>Consumer and workstation hardware with different precision capabilities. The cert focuses on A100/H100 distinctions, but understanding the consumer tier clarifies the Ampere/Ada capability split.</p>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>RTX 3080 (Ampere, 10 GB GDDR6X)</h4>
+            <ul>
+                <li>INT8 tensor cores <span class="badge ok">Yes</span></li>
+                <li>FP8 native <span class="badge bad">No</span> (Hopper feature)</li>
+                <li>FP4 <span class="badge bad">No</span></li>
+                <li>MIG <span class="badge bad">Not on consumer Ampere</span></li>
+                <li>Memory bandwidth: ~760 GB/s</li>
+                <li><strong>7B INT4:</strong> ~4 GB weights, ~6 GB KV budget</li>
+                <li><strong>13B INT4:</strong> ~7 GB weights, ~3 GB KV &mdash; tight</li>
+            </ul>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>RTX 4000 Ada (Ada Lovelace, 20 GB GDDR6)</h4>
+            <ul>
+                <li>INT8 tensor cores <span class="badge ok">Yes</span></li>
+                <li>FP8 compute <span class="badge ok">Yes</span> (E4M3/E5M2)</li>
+                <li>FP4 <span class="badge bad">No</span> (Blackwell only)</li>
+                <li>MIG <span class="badge bad">Not on Ada consumer/workstation</span></li>
+                <li>Memory bandwidth: ~432 GB/s</li>
+                <li><strong>7B BF16:</strong> ~14 GB weights, 6 GB KV</li>
+                <li><strong>13B INT4:</strong> ~7 GB weights, 13 GB KV budget</li>
+                <li><strong>30B INT4:</strong> ~15&ndash;16 GB weights, 4&ndash;5 GB KV &mdash; short context only</li>
+            </ul>
+        </div>
+    </div>
+    <div class="callout">
+        <div class="callout-label">Bandwidth note</div>
+        <p>The RTX 3080 has higher memory bandwidth (760 vs 432 GB/s) despite 2&times; less VRAM. For bandwidth-bound decode TPOT, the 3080 can outperform the 4000 Ada at equivalent model and precision if the model fits. The 4000 Ada wins on batch capacity and model size headroom (20 GB).</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>The cert-relevant mapping: RTX 3080 = Ampere without MIG, INT8 native. RTX 4000 Ada = Ada Lovelace, FP8 compute available (unlike A100 which is Ampere without FP8), MIG not available on consumer/workstation. A100 = Ampere, MIG available, INT8 native, FP8 not native. H100 = Hopper, MIG available, FP8 native. That's the exam-relevant hardware capability matrix.</p>
+    </aside>
+</section>
+
+<!-- 18 Worked latency budget -->
+<section class="slide" id="slide-18">
+    <div class="slide-number">18</div>
+    <h2>Worked Latency Budget</h2>
+    <p>Back-of-envelope estimate for a 7B INT4 model on RTX 4000 Ada at batch&nbsp;1. Derived from formulas, not measured benchmarks.</p>
+    <div class="code-block">
+        <div class="code-header">Latency estimate &mdash; 7B INT4, RTX 4000 Ada, batch 1, single request</div>
+        <pre><code><span class="cm">--- TTFT (prefill, 512 input tokens) ---</span>
+Prefill is compute-bound.
+FLOPs &asymp; 2 &times; 7&times;10^9 params &times; 512 tokens = 7.2&times;10^12 FLOPs
+RTX 4000 Ada peak BF16 tensor core throughput &asymp; 40 TFLOPS
+TTFT &asymp; 7.2&times;10^12 / 40&times;10^12 &asymp; <span class="num">~180 ms</span> (order of magnitude)
+
+<span class="cm">--- TPOT (decode, INT4 weights, bandwidth-bound) ---</span>
+INT4 7B weights: ~3.5 GB effective bytes loaded per forward pass
+RTX 4000 Ada bandwidth: ~432 GB/s
+TPOT &asymp; 3.5&times;10^9 / 432&times;10^9 &asymp; <span class="num">~8 ms/token</span> (~125 tok/s)
+
+<span class="cm">--- End-to-end, 256 output tokens ---</span>
+E2E &asymp; TTFT + 256 &times; TPOT
+    &asymp; 180 ms + 256 &times; 8 ms &asymp; <span class="num">~2.2 s</span>
+
+TPOT dominates: decode accounts for ~93% of end-to-end latency.</code></pre>
+    </div>
+    <div class="callout">
+        <div class="callout-label">Caveat</div>
+        <p>These are order-of-magnitude estimates from published formulas. Real throughput depends on kernel efficiency, memory allocation overhead, CUDA stream scheduling, and quantisation dequantisation cost. Use them to develop intuition about the relative contribution of TTFT vs TPOT, not as deployment-grade benchmarks.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>The key takeaway: for a typical chat response (256 output tokens, 512-token prompt), decode accounts for over 90% of end-to-end latency. This is why optimising decode throughput (quantisation, speculative decoding) has more end-user impact than optimising prefill TTFT for typical chat workloads. Longer prompts shift the balance back toward TTFT.</p>
+    </aside>
+</section>
+
+<!-- 19 Priority list -->
+<section class="slide" id="slide-19">
+    <div class="slide-number">19</div>
+    <h2>Optimisation Priority List</h2>
+    <p>What to reach for first, in order of typical expected impact for a standard LLM serving deployment.</p>
+    <div class="tier-visual">
+        <div class="tier-bar">
+            <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 1</span>
+            <div class="tier-fill" style="width:560px;background:rgba(118,185,0,0.3);color:#76B900;border:1px solid #76B900">Weight quantisation (INT4 AWQ/GPTQ or INT8 SmoothQuant / FP8) &mdash; largest free win</div>
+        </div>
+        <div class="tier-bar">
+            <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 2</span>
+            <div class="tier-fill" style="width:490px;background:rgba(118,185,0,0.22);color:#76B900;border:1px solid #76B90088">Continuous / in-flight batching &mdash; mandatory for variable-length production traffic</div>
+        </div>
+        <div class="tier-bar">
+            <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 3</span>
+            <div class="tier-fill" style="width:420px;background:rgba(118,185,0,0.14);color:#76B900;border:1px solid #76B90066">PagedAttention / paged KV &mdash; enables larger effective batch size without fragmentation</div>
+        </div>
+        <div class="tier-bar">
+            <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 4</span>
+            <div class="tier-fill" style="width:350px;background:rgba(118,185,0,0.08);color:#8b949e;border:1px solid var(--border)">KV cache quantisation (INT8/FP8) &mdash; extends context length on constrained HBM</div>
+        </div>
+        <div class="tier-bar">
+            <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 5</span>
+            <div class="tier-fill" style="width:280px;background:rgba(118,185,0,0.05);color:#8b949e;border:1px solid var(--border)">Model selection with GQA/MQA &mdash; choose architectures that reduce n_kv_heads</div>
+        </div>
+        <div class="tier-bar">
+            <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 6</span>
+            <div class="tier-fill" style="width:200px;background:rgba(118,185,0,0.03);color:#8b949e;border:1px solid var(--border)">Speculative decoding &mdash; significant gain if draft acceptance &gt; ~0.7</div>
+        </div>
+    </div>
+    <p>Items 1&ndash;3 are essentially universal. FlashAttention is assumed on by default in all modern frameworks and does not appear as a discrete optimisation step. Items 4&ndash;6 require profiling for the specific workload.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>This priority order is a heuristic starting point. Cases where it changes: already at INT4 and TPOT is still the bottleneck &rarr; speculative decoding may jump to priority 2. Memory is abundant and throughput at high batch is the concern &rarr; quantisation matters less than batching. Profiling first is always correct; this list is the starting hypothesis before profiling data is available.</p>
+    </aside>
+</section>
+
+<!-- 20 GQA/MQA -->
+<section class="slide" id="slide-20">
+    <div class="slide-number">20</div>
+    <h2>GQA / MQA &mdash; Reducing KV Head Count</h2>
+    <p>An architecture-level choice that drastically reduces KV cache size with minimal accuracy impact at scale. Selecting models that implement GQA is therefore a free optimisation at deployment time.</p>
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel accent-border">
+            <h4>MHA</h4>
+            <p>Multi-Head Attention. Each query head has its own K and V head. n_kv_heads = n_q_heads. Llama&nbsp;2&nbsp;7B: 32 KV heads.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>GQA</h4>
+            <p>Grouped-Query Attention. Groups of query heads share one KV pair. Llama&nbsp;3&nbsp;8B: 8 KV heads vs 32 Q heads (4&times; reduction). Llama&nbsp;3&nbsp;70B: 8 KV heads vs 64 Q heads (8&times; reduction).</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>MQA</h4>
+            <p>Multi-Query Attention. All Q heads share a single KV pair. Maximum KV reduction; some accuracy loss at smaller scales. Used by Falcon.</p>
+        </div>
+    </div>
+    <div class="code-block">
+        <div class="code-header">KV cache reduction with GQA &mdash; Llama 3 70B vs hypothetical MHA 70B</div>
+        <pre><code>Hypothetical MHA 70B (64 KV heads):
+  2 &times; 80 layers &times; 64 kv_heads &times; 128 head_dim &times; 4096 tokens &times; 2 bytes &asymp; <span class="num">42.9 GB</span>
+
+Actual GQA 70B (8 KV heads):
+  2 &times; 80 layers &times; 8 kv_heads &times; 128 head_dim &times; 4096 tokens &times; 2 bytes &asymp; <span class="num">5.4 GB</span>
+
+Reduction: 8&times; &mdash; from formula alone, no measured benchmark.</code></pre>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>GQA is now standard in most modern LLMs: Llama 3, Mistral, Gemma, Qwen, Phi. When comparing KV cache costs between models, always read n_kv_heads separately from n_heads. A model described as "64 heads" may have only 8 KV heads. The KV cache formula result will be 8x smaller than a naive calculation using n_heads as n_kv_heads. This is a common source of numerical-question errors.</p>
+    </aside>
+</section>
+
+<!-- 21 Exam angles -->
+<section class="slide" id="slide-21">
+    <div class="slide-number">21</div>
+    <h2>Exam Angles</h2>
+    <p>Common question patterns for the Model Optimisation (17%) and GPU Acceleration (14%) domains. Source: <code>notes/08_inference_optimisation.md</code>.</p>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Numerical / calculation</h4>
+            <ul>
+                <li>Given architecture params, compute KV cache at N tokens, batch B</li>
+                <li>Given GQA n_kv_heads, compute reduction vs MHA</li>
+                <li>Given INT8 KV, compute memory saving</li>
+                <li>Given bandwidth and weight bytes at precision X, estimate TPOT</li>
+            </ul>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Technique selection</h4>
+            <ul>
+                <li>"KV cache fragments memory" &rarr; PagedAttention</li>
+                <li>"GPU idles waiting for longest request" &rarr; continuous batching</li>
+                <li>"Prefill of long prompt is slow" &rarr; FlashAttention (not KV quant)</li>
+                <li>"Decode TPOT bounded by HBM bandwidth" &rarr; weight-only quantisation</li>
+                <li>"Multiple fine-tuned adapters, one base" &rarr; S-LoRA / multi-LoRA</li>
+            </ul>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Framework / tooling</h4>
+            <ul>
+                <li>TRT-LLM ahead-of-time compilation vs vLLM JIT &mdash; know the trade-off</li>
+                <li>Which framework is NVIDIA's recommended production path?</li>
+                <li>AWQ vs GPTQ: what each optimises; when each wins</li>
+                <li>FP8 native support: Hopper yes; Ampere no (software emulation only)</li>
+            </ul>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Speculative decoding</h4>
+            <ul>
+                <li>Output distribution: identical to target model (not approximate)</li>
+                <li>When does it fail? Low draft acceptance rate (&lt; ~0.5)</li>
+                <li>Medusa: extra decoding heads; EAGLE-3: feature-level draft</li>
+                <li>Speedup source: memory-bandwidth-bound regime; multiple tokens per verify step</li>
+            </ul>
+        </div>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>For numerical questions: write KV_bytes = 2 * n_layers * n_kv_heads * head_dim * seq_len * bytes_per_element on scratch paper at the start of the exam. It comes up repeatedly. For technique selection: map each optimisation to the triangle vertex it addresses. FlashAttention = compute/IO (TTFT). Quantisation = memory + bandwidth (TPOT + memory). PagedAttention = memory management (batch ceiling). IFB = throughput utilisation.</p>
+    </aside>
+</section>
+
+<!-- 22 Cross-references -->
+<section class="slide" id="slide-22">
+    <div class="slide-number">22</div>
+    <h2>Cross-References</h2>
+    <p>Cert-focused tour: this deck maps techniques to exam domains. For depth on implementation, see the portfolio repos below.</p>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Topic</th><th>Resource</th></tr></thead>
+            <tbody>
+                <tr><td>TensorRT-LLM: engine builder, IFB, paged KV, FP8/FP4, speculative</td><td><a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_19_TensorRT_LLM" style="color:var(--accent)">NVIDIA_GPU_19_TensorRT_LLM</a></td></tr>
+                <tr><td>vLLM, Ollama, TGI, llama.cpp local comparison</td><td><a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Local_LLM_Hosting" style="color:var(--accent)">LLM_Hub_Local_LLM_Hosting</a></td></tr>
+                <tr><td>NVIDIA GPU memory hierarchy and bandwidth</td><td><a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_04_Memory_Hierarchy" style="color:var(--accent)">NVIDIA_GPU_04_Memory_Hierarchy</a></td></tr>
+                <tr><td>Tensor cores: INT8 / FP8 throughput arithmetic</td><td><a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_03_Tensor_Cores" style="color:var(--accent)">NVIDIA_GPU_03_Tensor_Cores</a></td></tr>
+                <tr><td>Full NVIDIA GPU architecture series</td><td><a href="https://github.com/BrendanJamesLynskey/LLM_Hub_NVIDIA_GPUs" style="color:var(--accent)">LLM_Hub_NVIDIA_GPUs</a></td></tr>
+                <tr><td>NVIDIA stack: Triton, NIM, NeMo (deck 05 in this series)</td><td><a href="../05_nvidia_stack_overview/index.html" style="color:var(--accent)">05_nvidia_stack_overview</a></td></tr>
+                <tr><td>PagedAttention / vLLM paper</td><td><a href="https://arxiv.org/abs/2309.06180" style="color:var(--accent)">arXiv:2309.06180</a> &mdash; Kwon et al., 2023</td></tr>
+                <tr><td>FlashAttention v1</td><td><a href="https://arxiv.org/abs/2205.14135" style="color:var(--accent)">arXiv:2205.14135</a> &mdash; Dao et al., 2022</td></tr>
+                <tr><td>FlashAttention v2</td><td><a href="https://arxiv.org/abs/2307.08691" style="color:var(--accent)">arXiv:2307.08691</a> &mdash; Dao, 2023</td></tr>
+                <tr><td>AWQ</td><td><a href="https://arxiv.org/abs/2306.00978" style="color:var(--accent)">arXiv:2306.00978</a> &mdash; Lin et al., 2023</td></tr>
+                <tr><td>GPTQ</td><td><a href="https://arxiv.org/abs/2210.17323" style="color:var(--accent)">arXiv:2210.17323</a> &mdash; Frantar et al., 2022</td></tr>
+                <tr><td>Medusa speculative decoding</td><td><a href="https://arxiv.org/abs/2401.10774" style="color:var(--accent)">arXiv:2401.10774</a> &mdash; Cai et al., 2024</td></tr>
+                <tr><td>TensorRT-LLM official docs</td><td><a href="https://developer.nvidia.com/tensorrt-llm" style="color:var(--accent)">developer.nvidia.com/tensorrt-llm</a></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker notes</div>
+        <p>The NVIDIA stack deck (05) covers how the inference optimisation techniques from this deck are packaged into Triton, NIM, and NeMo. It is the natural next read after this one. The TensorRT-LLM portfolio repo goes substantially deeper on engine compilation, plugin architecture, and multi-GPU parallelism.</p>
+    </aside>
+</section>
+
+<footer class="footer">
+    <p>
+        <a href="https://github.com/BrendanJamesLynskey/NVIDIA_GenAI_LLMs_Cert_Prep">NVIDIA GenAI Cert Prep</a>
+        &mdash;
+        <a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_19_TensorRT_LLM">NVIDIA_GPU_19_TensorRT_LLM</a>
+        &mdash;
+        <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Local_LLM_Hosting">LLM_Hub_Local_LLM_Hosting</a>
+        &mdash;
+        <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_NVIDIA_GPUs">LLM_Hub_NVIDIA_GPUs</a>
+    </p>
+    <p style="margin-top:0.5rem">Deck 04 of 05 &mdash; NVIDIA GenAI Cert Prep Series</p>
+</footer>
+
 </body>
 </html>

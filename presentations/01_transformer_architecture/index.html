@@ -1,10 +1,1268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Transformer Architecture — Stub</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformer Architecture — NVIDIA GenAI Cert Prep</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #0d1117;
+            --bg-code: #161b22;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #76B900;
+            --accent-dim: #76B90044;
+            --accent-glow: #76B90033;
+            --border: #21262d;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 900px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* ── Header ── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hero > * { position: relative; z-index: 1; }
+
+        .series-label {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 .accent { color: var(--accent); }
+
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        /* ── Tag Pills ── */
+        .tags {
+            display: flex; flex-wrap: wrap;
+            gap: 0.5rem; justify-content: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+            white-space: nowrap;
+        }
+
+        /* ── Pipeline Flow Bar ── */
+        .pipeline {
+            display: flex; flex-wrap: wrap;
+            align-items: center; justify-content: center;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+            max-width: var(--max-width);
+        }
+
+        .pipeline-step {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            padding: 0.3rem 0.7rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .pipeline-arrow { color: var(--accent); font-size: 0.9rem; font-weight: 700; }
+
+        /* ── Slides ── */
+        .slide {
+            min-height: 100vh;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide-number {
+            font-family: var(--font-display);
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--accent-dim);
+            position: absolute;
+            top: 2rem; right: 1.5rem;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .slide h2 {
+            font-family: var(--font-display);
+            font-size: 1.9rem; font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            line-height: 1.25;
+        }
+
+        .slide h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem; font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 1.5rem; margin-bottom: 0.75rem;
+        }
+
+        .slide p { margin-bottom: 1rem; color: var(--text-secondary); }
+        .slide p strong { color: var(--text-primary); }
+
+        .slide ul, .slide ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .slide li { margin-bottom: 0.4rem; }
+        .slide li strong { color: var(--text-primary); }
+
+        /* ── Code Blocks ── */
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 1.25rem 0;
+            overflow: hidden;
+        }
+
+        .code-header {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            background: rgba(118, 185, 0, 0.08);
+            padding: 0.4rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-block pre { margin: 0; padding: 1rem; overflow-x: auto; }
+        .code-block code {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #c9d1d9;
+        }
+
+        .kw { color: #ff7b72; }
+        .fn { color: #d2a8ff; }
+        .str { color: #a5d6ff; }
+        .cm { color: #8b949e; font-style: italic; }
+        .num { color: #79c0ff; }
+        .type { color: #ffa657; }
+
+        /* ── Tables ── */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 1.25rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+
+        th {
+            background: var(--bg-code);
+            color: var(--accent);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-family: var(--font-display);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background: rgba(13, 17, 23, 0.5); }
+
+        /* ── Diagrams ── */
+        .diagram-flow {
+            display: flex; flex-wrap: wrap;
+            align-items: center; justify-content: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .diagram-box {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .diagram-box.accent {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(118, 185, 0, 0.08);
+        }
+
+        .diagram-box.dim { color: var(--text-secondary); border-color: var(--border); }
+
+        .diagram-arrow { color: var(--accent); font-size: 1.3rem; font-weight: 700; }
+
+        .diagram-vertical {
+            display: flex; flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .diagram-vertical .diagram-arrow { font-size: 1.1rem; }
+
+        .diagram-grid {
+            display: grid; gap: 0.75rem;
+            margin: 1.5rem 0; padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .diagram-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .diagram-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+        .diagram-panel {
+            padding: 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        .diagram-panel.accent-border { border-left: 3px solid var(--accent); }
+        .diagram-panel h4 { font-family: var(--font-display); font-size: 1rem; color: var(--accent); margin-bottom: 0.5rem; }
+        .diagram-panel p, .diagram-panel ul { font-size: 0.85rem; }
+
+        /* ── Callout Boxes ── */
+        .callout {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            padding: 1rem 1.25rem;
+            margin: 1.25rem 0;
+        }
+
+        .callout p { margin-bottom: 0; }
+
+        .callout .callout-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+
+        /* ── Contents list ── */
+        .contents-list {
+            list-style: none; padding-left: 0;
+            counter-reset: contents;
+        }
+
+        .contents-list li {
+            counter-increment: contents;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 1rem;
+        }
+
+        .contents-list li:last-child { border-bottom: none; }
+
+        .contents-list li::before {
+            content: counter(contents, decimal-leading-zero);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            min-width: 2rem;
+        }
+
+        .contents-list a { color: var(--text-primary); text-decoration: none; transition: color 0.2s; }
+        .contents-list a:hover { color: var(--accent); }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        /* ── Canvas / SVG containers ── */
+        .canvas-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.25rem 0;
+            overflow-x: auto;
+        }
+
+        .canvas-wrap svg { display: block; margin: 0 auto; max-width: 100%; }
+
+        /* ── Badge ── */
+        .badge {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 0.1rem 0.45rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            vertical-align: middle;
+            margin-left: 0.3rem;
+        }
+
+        .badge.ok    { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+        .badge.warn  { border-color: #ffa657; color: #ffa657; background: rgba(255,166,87,0.08); }
+
+        /* ── Speaker Notes ── */
+        .notes-toggle {
+            position: fixed;
+            top: 1rem; right: 1rem;
+            z-index: 999;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.35rem 0.8rem;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .notes-toggle:hover { background: var(--accent-dim); }
+
+        .speaker-notes {
+            display: none;
+            background: rgba(118, 185, 0, 0.04);
+            border: 1px solid var(--accent-dim);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .speaker-notes .notes-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        body.notes-visible .speaker-notes { display: block; }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .slide { padding: 3rem 1rem; min-height: auto; }
+            .slide-number { font-size: 3rem; top: 1.5rem; right: 1rem; }
+            .slide h2 { font-size: 1.5rem; }
+            .diagram-grid.cols-2, .diagram-grid.cols-3 { grid-template-columns: 1fr; }
+            .pipeline { gap: 0.15rem; }
+            .pipeline-step { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
+            .hero h1 { font-size: 1.8rem; }
+            table { font-size: 0.78rem; }
+        }
+    </style>
 </head>
 <body>
-<p>Stub — Phase 6 fills this.</p>
+
+<button class="notes-toggle" onclick="document.body.classList.toggle('notes-visible')">Speaker Notes</button>
+
+<header class="hero">
+    <div class="series-label">NVIDIA GenAI Cert Prep &mdash; Presentation 01</div>
+    <h1><span class="accent">Transformer Architecture</span><br>Decoder-Only Deep Dive</h1>
+    <p class="subtitle">The decoder-only transformer underlies every major production LLM. This deck maps the architecture to cert exam domains, walks the token-to-logit pipeline, and flags the distractor traps the NCA and NCP papers use most often.</p>
+
+    <div class="tags">
+        <span class="tag">NCA Core ML 30%</span>
+        <span class="tag">NCP LLM Arch 6%</span>
+        <span class="tag">Attention</span>
+        <span class="tag">RoPE</span>
+        <span class="tag">KV Cache</span>
+        <span class="tag">MoE</span>
+        <span class="tag">Decoder-Only</span>
+    </div>
+
+    <div class="pipeline">
+        <span class="pipeline-step">Tokens</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Embeddings</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Pos. Enc.</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">N&times; Decoder Block</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Unembed</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Logits</span>
+    </div>
+</header>
+
+<!-- ─────────────────────────── SLIDE 00 ─────────────────────────── -->
+<section class="slide" id="slide-00">
+    <div class="slide-number">00</div>
+    <h2>Topics in This Deck</h2>
+    <p>A cert-focused tour of the decoder-only transformer &mdash; from the token pipeline through to modern variants and the exact exam angles the NCA and NCP papers probe.</p>
+    <ul class="contents-list">
+        <li><a href="#slide-01">Cert Framing &mdash; Exam Domains and Weightings</a></li>
+        <li><a href="#slide-02">From Token to Logit &mdash; Pipeline Overview</a></li>
+        <li><a href="#slide-03">Tokenisation &mdash; BPE Essentials</a></li>
+        <li><a href="#slide-04">Embeddings &mdash; Lookup Table and Weight Tying</a></li>
+        <li><a href="#slide-05">Positional Encoding &mdash; Absolute, RoPE, ALiBi</a></li>
+        <li><a href="#slide-06">Attention &mdash; Q, K, V, Scale, Mask</a></li>
+        <li><a href="#slide-07">Multi-Head Attention and GQA</a></li>
+        <li><a href="#slide-08">The Decoder Block &mdash; Pre-Norm and Residuals</a></li>
+        <li><a href="#slide-09">Feed-Forward Network &mdash; SwiGLU vs ReLU</a></li>
+        <li><a href="#slide-10">KV Cache &mdash; Memory Cost at Long Context</a></li>
+        <li><a href="#slide-11">Decoding Strategies &mdash; Greedy, Sampling, Speculative</a></li>
+        <li><a href="#slide-12">Architecture Families &mdash; Decoder, Encoder-Decoder, Encoder</a></li>
+        <li><a href="#slide-13">Modern Variants &mdash; MoE, Mamba, Hybrids</a></li>
+        <li><a href="#slide-14">Likely Exam Angles</a></li>
+        <li><a href="#slide-15">Cross-References and Further Reading</a></li>
+    </ul>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>This deck covers the material that the NCA exam weights most heavily (Core ML 30%) and that the NCP exam tests with more precision (LLM Architecture 6%). The goal is synthesis and exam readiness, not exhaustive depth &mdash; cross-references point to the portfolio repos that carry the full treatment.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 01 ─────────────────────────── -->
+<section class="slide" id="slide-01">
+    <div class="slide-number">01</div>
+    <h2>Cert Framing &mdash; Which Domains, What Weighting</h2>
+
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>NCA-GENL Associate</h4>
+            <p><strong>Core ML and AI Knowledge</strong></p>
+            <p style="font-family:var(--font-mono);font-size:1.4rem;color:var(--accent);">30%</p>
+            <p style="font-size:0.85rem;">Largest single domain. Tests foundational understanding of how transformers work &mdash; attention mechanics, scaling, trade-offs. Questions are scenario-based: "which change would most reduce memory at long context?"</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>NCP-GENL Professional</h4>
+            <p><strong>LLM Architecture</strong></p>
+            <p style="font-family:var(--font-mono);font-size:1.4rem;color:var(--accent);">6%</p>
+            <p style="font-size:0.85rem;">Smaller domain but more precise. Tests exact mechanisms: the 1/&#8730;d&#8342; scaling rationale, pre-norm vs post-norm, GQA vs MQA memory savings, RoPE vs ALiBi mechanism difference.</p>
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Why this matters for the NCA</div>
+        <p>The 30% Core ML domain is the single largest lever on your NCA score. Understanding transformer internals also builds the mental model needed for RAG (22%), fine-tuning (22%), and inference optimisation &mdash; the examiners assume the architecture is your baseline.</p>
+    </div>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The NCA domain weightings are: Core ML 30%, Experimentation 22%, Evaluation 12%, Prompt Engineering 19%, Responsible AI 17%. Transformer architecture sits in Core ML but bleeds into all other domains. Verify exact weightings against the NVIDIA Learn certification pages as they may be updated.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 02 ─────────────────────────── -->
+<section class="slide" id="slide-02">
+    <div class="slide-number">02</div>
+    <h2>From Token to Logit &mdash; The Full Pipeline</h2>
+
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 820 120" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+            <!-- Background -->
+            <rect width="820" height="120" fill="#0d1117" rx="8"/>
+
+            <!-- Boxes -->
+            <rect x="10"  y="30" width="110" height="50" rx="5" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+            <rect x="150" y="30" width="110" height="50" rx="5" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+            <rect x="290" y="30" width="110" height="50" rx="5" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+            <rect x="430" y="20" width="130" height="70" rx="5" fill="#161b22" stroke="#76B900" stroke-width="1.5"/>
+            <rect x="590" y="30" width="110" height="50" rx="5" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+            <rect x="710" y="30" width="100" height="50" rx="5" fill="#161b22" stroke="#76B900" stroke-width="1.5"/>
+
+            <!-- Arrows -->
+            <line x1="120" y1="55" x2="148" y2="55" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr)"/>
+            <line x1="260" y1="55" x2="288" y2="55" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr)"/>
+            <line x1="400" y1="55" x2="428" y2="55" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr)"/>
+            <line x1="560" y1="55" x2="588" y2="55" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr)"/>
+            <line x1="700" y1="55" x2="708" y2="55" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr)"/>
+
+            <!-- Labels -->
+            <text x="65"  y="52" fill="#e6edf3" font-size="11" text-anchor="middle">Tokens</text>
+            <text x="65"  y="67" fill="#8b949e" font-size="9"  text-anchor="middle">integer IDs</text>
+
+            <text x="205" y="52" fill="#e6edf3" font-size="11" text-anchor="middle">Embeddings</text>
+            <text x="205" y="67" fill="#8b949e" font-size="9"  text-anchor="middle">V &times; d&#8346;</text>
+
+            <text x="345" y="52" fill="#e6edf3" font-size="11" text-anchor="middle">Pos. Enc.</text>
+            <text x="345" y="67" fill="#8b949e" font-size="9"  text-anchor="middle">RoPE/ALiBi</text>
+
+            <text x="495" y="50" fill="#76B900" font-size="11" text-anchor="middle">N&#215; Decoder</text>
+            <text x="495" y="65" fill="#76B900" font-size="11" text-anchor="middle">Block</text>
+            <text x="495" y="80" fill="#8b949e" font-size="9"  text-anchor="middle">Attn + FFN</text>
+
+            <text x="645" y="52" fill="#e6edf3" font-size="11" text-anchor="middle">Unembed</text>
+            <text x="645" y="67" fill="#8b949e" font-size="9"  text-anchor="middle">d&#8346; &rarr; V</text>
+
+            <text x="760" y="52" fill="#76B900" font-size="11" text-anchor="middle">Logits</text>
+            <text x="760" y="67" fill="#8b949e" font-size="9"  text-anchor="middle">&#8477;&#11516;</text>
+
+            <!-- Arrow marker -->
+            <defs>
+                <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L6,3 z" fill="#76B900"/>
+                </marker>
+            </defs>
+        </svg>
+    </div>
+
+    <p>Each step is differentiable. During training the full forward pass runs in one shot; during generation the model runs one token at a time in autoregressive fashion, reusing the KV cache from prior steps.</p>
+
+    <ul>
+        <li><strong>V</strong> &mdash; vocabulary size (e.g. 32&thinsp;000&ndash;128&thinsp;000 tokens)</li>
+        <li><strong>d&#8346;</strong> &mdash; residual stream width (e.g. 4096 for a 7B model)</li>
+        <li><strong>N</strong> &mdash; number of decoder blocks (e.g. 32 for a 7B model)</li>
+        <li>Unembedding is often the <em>transposed</em> embedding matrix (weight tying &mdash; covered in Slide 04)</li>
+    </ul>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>This is the conceptual skeleton for everything that follows. The residual stream metaphor is useful: think of d&#8346;-dimensional vectors flowing through the network, with each block adding a small correction. Every sub-layer reads from and writes back to this shared stream at the same dimension.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 03 ─────────────────────────── -->
+<section class="slide" id="slide-03">
+    <div class="slide-number">03</div>
+    <h2>Tokenisation &mdash; BPE Essentials</h2>
+
+    <p><strong>Byte-Pair Encoding (BPE)</strong> is the dominant tokenisation algorithm in production LLMs (GPT series, LLaMA, Mistral). It builds a vocabulary of subword units by iteratively merging the most frequent adjacent byte pair in the training corpus.</p>
+
+    <h3>How BPE works</h3>
+    <ol>
+        <li>Initialise the vocabulary with all individual bytes (256 entries for byte-level BPE).</li>
+        <li>Count all adjacent symbol pairs in the corpus. Merge the most frequent pair into a new token.</li>
+        <li>Repeat until vocabulary reaches target size (e.g., 32&thinsp;000 or 128&thinsp;000 merges).</li>
+    </ol>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Property</th><th>Value / Range</th><th>Why it matters</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Vocabulary size</td><td>32&thinsp;000&ndash;128&thinsp;256</td><td>Larger vocab = shorter sequences; embedding matrix grows</td></tr>
+                <tr><td>Special tokens</td><td>&lt;bos&gt;, &lt;eos&gt;, &lt;pad&gt;, &lt;unk&gt;</td><td>Must match exactly at fine-tuning time</td></tr>
+                <tr><td>Tokeniser algorithm</td><td>BPE, SentencePiece, Unigram</td><td>Different tokenisers &rarr; different token counts for same text</td></tr>
+                <tr><td>Worst-case token</td><td>1 char = 1 token</td><td>Code, languages with rare scripts inflate token count</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Exam angle</div>
+        <p>The tokeniser is separate from the model weights. A mismatch between the tokeniser used during training and the one used at inference produces garbage &mdash; this is a common distractor in fine-tuning questions.</p>
+    </div>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>SentencePiece is a library, not an algorithm; it can implement BPE or Unigram internally. LLaMA 1/2 use SentencePiece-BPE with a 32k vocab; LLaMA 3 uses tiktoken-style BPE with 128k vocab. The increased vocab size in LLaMA 3 is the primary reason it handles code and non-Latin scripts more efficiently.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 04 ─────────────────────────── -->
+<section class="slide" id="slide-04">
+    <div class="slide-number">04</div>
+    <h2>Embeddings &mdash; The Lookup Table</h2>
+
+    <p>Token embeddings are a trainable matrix <strong>E &#8712; &#8477;<sup>V&times;d&#8346;</sup></strong>. Each row is the dense vector representation of one vocabulary token. The forward pass is a simple lookup: given token index <em>i</em>, the embedding is the <em>i</em>-th row of E.</p>
+
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 600 180" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+            <rect width="600" height="180" fill="#0d1117" rx="8"/>
+
+            <!-- Matrix representation -->
+            <rect x="20" y="20" width="120" height="140" rx="4" fill="#161b22" stroke="#21262d"/>
+            <!-- Highlighted row -->
+            <rect x="20" y="78" width="120" height="24" rx="0" fill="rgba(118,185,0,0.15)" stroke="#76B900" stroke-width="1"/>
+
+            <text x="80" y="38" fill="#8b949e" font-size="10" text-anchor="middle">row 0</text>
+            <text x="80" y="60" fill="#8b949e" font-size="10" text-anchor="middle">row 1</text>
+            <text x="80" y="92" fill="#76B900" font-size="11" text-anchor="middle" font-weight="bold">row i  &#8592; token i</text>
+            <text x="80" y="118" fill="#8b949e" font-size="10" text-anchor="middle">&#8942;</text>
+            <text x="80" y="145" fill="#8b949e" font-size="10" text-anchor="middle">row V-1</text>
+
+            <text x="80" y="165" fill="#8b949e" font-size="9" text-anchor="middle">E &#8712; &#8477;&#11516;&#215;d&#8346;</text>
+
+            <!-- Arrow -->
+            <line x1="145" y1="90" x2="195" y2="90" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+            <!-- Result vector -->
+            <rect x="200" y="60" width="50" height="60" rx="4" fill="#161b22" stroke="#76B900" stroke-width="1.5"/>
+            <text x="225" y="88" fill="#76B900" font-size="10" text-anchor="middle">e&#7522;</text>
+            <text x="225" y="102" fill="#8b949e" font-size="9" text-anchor="middle">&#8477;d&#8346;</text>
+
+            <!-- Weight tying label -->
+            <rect x="310" y="30" width="260" height="120" rx="6" fill="#161b22" stroke="#21262d"/>
+            <text x="440" y="55" fill="#76B900" font-size="12" text-anchor="middle" font-weight="600">Weight Tying</text>
+            <text x="440" y="80" fill="#e6edf3" font-size="10" text-anchor="middle">Input embedding E (V&#215;d&#8346;)</text>
+            <line x1="360" y1="88" x2="520" y2="88" stroke="#21262d" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="440" y="105" fill="#e6edf3" font-size="10" text-anchor="middle">Unembedding W&#7524; = E&#7488; (d&#8346;&#215;V)</text>
+            <text x="440" y="128" fill="#8b949e" font-size="9" text-anchor="middle">Same parameter matrix, transposed.</text>
+            <text x="440" y="141" fill="#8b949e" font-size="9" text-anchor="middle">Saves V&#215;d&#8346; parameters.</text>
+
+            <defs>
+                <marker id="arr2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L6,3 z" fill="#76B900"/>
+                </marker>
+            </defs>
+        </svg>
+    </div>
+
+    <ul>
+        <li><strong>Tied weights</strong>: the unembedding matrix is E<sup>T</sup>. Halves the parameter count for the vocabulary projections. Used in LLaMA, GPT-2. Trade-off: constraints the expressiveness of the output projection.</li>
+        <li><strong>Untied weights</strong>: separate matrices for input embedding and output unembedding. Used in some architectures where the distributional mismatch between input and output warrants separate parameters.</li>
+        <li>For a 7B model with d&#8346; = 4096 and V = 128&thinsp;256: embedding matrix = 128&thinsp;256 &times; 4096 &times; 2 bytes &#8776; <strong>1.05 GB</strong> &mdash; a significant fraction of total VRAM.</li>
+    </ul>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The parameter count of the embedding table scales with vocabulary size, making large vocabularies expensive on constrained hardware. Weight tying is a common exam question: "which technique reduces parameter count while keeping the model's vocabulary the same size?"</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 05 ─────────────────────────── -->
+<section class="slide" id="slide-05">
+    <div class="slide-number">05</div>
+    <h2>Positional Encoding &mdash; Absolute, RoPE, ALiBi</h2>
+
+    <p>Attention is permutation-equivariant &mdash; shuffle the input and the output shuffles identically. Positional information must be injected explicitly. Three dominant strategies:</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Where applied</th><th>Mechanism</th><th>Length extrapolation</th><th>Used in</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Absolute sinusoidal</td>
+                    <td>Added to embeddings</td>
+                    <td>Fixed sin/cos waves, no learned params</td>
+                    <td>Poor in practice</td>
+                    <td>Original Transformer</td>
+                </tr>
+                <tr>
+                    <td>Learned absolute</td>
+                    <td>Added to embeddings</td>
+                    <td>Trainable pos. embedding matrix</td>
+                    <td>None beyond max length</td>
+                    <td>GPT-2, BERT</td>
+                </tr>
+                <tr>
+                    <td><strong>RoPE</strong></td>
+                    <td>Rotates Q and K vectors</td>
+                    <td>Relative position via complex rotation; dot product depends only on i&#8722;j</td>
+                    <td>Good (YaRN/ABF)</td>
+                    <td>LLaMA, Mistral, Qwen</td>
+                </tr>
+                <tr>
+                    <td><strong>ALiBi</strong></td>
+                    <td>Bias added to attention scores (after dot product)</td>
+                    <td>Linear penalty &#8722;m&#183;|i&#8722;j| per head</td>
+                    <td>Very good</td>
+                    <td>MPT, BLOOM</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- RoPE 2D rotation diagram -->
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+            <rect width="500" height="200" fill="#0d1117" rx="8"/>
+            <text x="250" y="22" fill="#76B900" font-size="12" text-anchor="middle" font-weight="600">RoPE: 2D rotation of (q&#8320;, q&#8321;) at position m</text>
+
+            <!-- Axes -->
+            <line x1="60" y1="160" x2="220" y2="160" stroke="#21262d" stroke-width="1"/>
+            <line x1="140" y1="80" x2="140" y2="165" stroke="#21262d" stroke-width="1"/>
+
+            <!-- Original vector -->
+            <line x1="140" y1="160" x2="195" y2="105" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <circle cx="195" cy="105" r="3" fill="#8b949e"/>
+            <text x="202" y="103" fill="#8b949e" font-size="9">q (pos 0)</text>
+
+            <!-- Rotated vector position m -->
+            <line x1="140" y1="160" x2="168" y2="92" stroke="#76B900" stroke-width="2"/>
+            <circle cx="168" cy="92" r="3" fill="#76B900"/>
+            <text x="172" y="88" fill="#76B900" font-size="9">R(m&#952;)q</text>
+
+            <!-- Rotated vector position n -->
+            <line x1="140" y1="160" x2="210" y2="125" stroke="#ffa657" stroke-width="2"/>
+            <circle cx="210" cy="125" r="3" fill="#ffa657"/>
+            <text x="215" y="122" fill="#ffa657" font-size="9">R(n&#952;)k</text>
+
+            <!-- Angle arc -->
+            <path d="M 163 145 A 20 20 0 0 1 172 131" fill="none" stroke="#76B900" stroke-width="1" stroke-dasharray="3,2"/>
+            <text x="170" y="143" fill="#8b949e" font-size="8">&#952;m</text>
+
+            <!-- Formula panel -->
+            <rect x="260" y="40" width="220" height="120" rx="6" fill="#161b22" stroke="#21262d"/>
+            <text x="370" y="62" fill="#76B900" font-size="11" text-anchor="middle">Dot product property</text>
+            <text x="370" y="85" fill="#e6edf3" font-size="10" text-anchor="middle">q&#7488;&#183;k = R((m-n)&#952;)q&#7488;&#183;k</text>
+            <line x1="280" y1="95" x2="470" y2="95" stroke="#21262d" stroke-width="1"/>
+            <text x="370" y="114" fill="#8b949e" font-size="9" text-anchor="middle">Score depends only on</text>
+            <text x="370" y="128" fill="#8b949e" font-size="9" text-anchor="middle">relative displacement m&#8722;n</text>
+            <text x="370" y="148" fill="#8b949e" font-size="9" text-anchor="middle">not absolute positions</text>
+        </svg>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Exam distinction</div>
+        <p><strong>RoPE</strong> modifies Q and K vectors <em>before</em> the dot product via rotation. <strong>ALiBi</strong> adds a distance-based linear bias <em>after</em> the dot product but before softmax. This distinction is the most common NCP exam question on positional encoding.</p>
+    </div>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>RoPE rotates pairs of dimensions by angle m&theta; where &theta; varies by dimension pair. The key insight is that the inner product of two rotated vectors is a function only of their relative angle, hence only of relative position. ALiBi's linear penalty creates an implicit recency bias &mdash; distant tokens are penalised proportionally, which naturally improves length generalisation but also means the model has a built-in preference for recent context.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 06 ─────────────────────────── -->
+<section class="slide" id="slide-06">
+    <div class="slide-number">06</div>
+    <h2>Attention &mdash; Q, K, V, Scale, and Mask</h2>
+
+    <p>The central computation in every decoder block. Given input X &#8712; &#8477;<sup>seq&times;d&#8346;</sup>, three linear projections produce queries, keys, and values:</p>
+
+    <div class="code-block">
+        <div class="code-header">Scaled Dot-Product Attention</div>
+        <pre><code>Q = X W<span class="type">_Q</span>   <span class="cm">-- W_Q &#8712; &#8477;^(d_model &#215; d_k)</span>
+K = X W<span class="type">_K</span>   <span class="cm">-- W_K &#8712; &#8477;^(d_model &#215; d_k)</span>
+V = X W<span class="type">_V</span>   <span class="cm">-- W_V &#8712; &#8477;^(d_model &#215; d_v)</span>
+
+Attention(Q, K, V) = <span class="fn">softmax</span>( Q K&#7488; / &#8730;d_k  +  M ) &#183; V
+
+<span class="cm">-- M is the causal mask: -inf for j &gt; i, 0 otherwise</span>
+<span class="cm">-- Scaling by 1/&#8730;d_k prevents softmax saturation at large d_k</span></code></pre>
+    </div>
+
+    <h3>Why 1/&#8730;d&#8342;?</h3>
+    <p>When vectors of dimension d&#8342; are initialised with unit variance, their dot product has variance d&#8342;. Without scaling, large d&#8342; values push dot products to large magnitudes, driving softmax towards a near-one-hot distribution &mdash; gradients vanish. Dividing by &#8730;d&#8342; restores unit variance at the softmax input.</p>
+
+    <h3>Causal masking</h3>
+    <p>The decoder is autoregressive &mdash; position <em>i</em> may only attend to positions &le; <em>i</em>. The upper-triangular mask sets logits for future positions to &minus;&#8734;; after softmax these become 0. This is implemented as a single triangular tensor added to the attention scores before softmax.</p>
+
+    <div class="callout">
+        <div class="callout-label">Common distractor</div>
+        <p>The 1/&#8730;d&#8342; scaling is for <em>variance stability</em> at the softmax input, not for normalising the output magnitude of the projection. Exam distractors frequently conflate these.</p>
+    </div>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The original Transformer paper uses d&#8342; = d&#7525; = 64 with 8 heads in the base model. In modern 7B models, d&#8346; = 4096, 32 heads, d&#8342; = 128. The QKV projections dominate the attention parameter count: 3 &times; d&#8346; &times; d&#8342; &times; h = 3 &times; 4096 &times; 128 &times; 32 = ~50M parameters per block, just for Q, K, V.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 07 ─────────────────────────── -->
+<section class="slide" id="slide-07">
+    <div class="slide-number">07</div>
+    <h2>Multi-Head Attention and GQA</h2>
+
+    <p>Rather than one large attention computation, the model runs <em>h</em> parallel attention heads, each with d&#8342; = d&#8346;/h. The outputs are concatenated and projected:</p>
+
+    <div class="code-block">
+        <div class="code-header">Multi-Head Attention</div>
+        <pre><code><span class="fn">MultiHead</span>(Q, K, V) = <span class="fn">Concat</span>(head<span class="num">&#8321;</span>, ..., head<span class="type">&#8341;</span>) W<span class="type">_O</span>
+
+head<span class="type">&#7522;</span> = <span class="fn">Attention</span>( Q W<span class="type">_Q&#7522;</span>, K W<span class="type">_K&#7522;</span>, V W<span class="type">_V&#7522;</span> )</code></pre>
+    </div>
+
+    <p>Multiple heads allow the model to attend to different aspects of the context simultaneously &mdash; different syntactic roles, different semantic relations &mdash; within the same layer. What matters is the total parameter count d&#8346;&sup2; (or 4 &times; d&#8346;&sup2; for full QKVO), not the number of heads per se.</p>
+
+    <h3>Grouped-Query Attention (GQA)</h3>
+
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel">
+            <h4>MHA</h4>
+            <p>h query heads<br>h key heads<br>h value heads</p>
+            <p style="font-size:0.8rem;color:var(--text-secondary);">Baseline. Large KV cache.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>GQA</h4>
+            <p>h query heads<br>g key heads (g &lt; h)<br>g value heads</p>
+            <p style="font-size:0.8rem;color:var(--text-secondary);">h/g queries share each KV group. KV cache shrinks by h/g. Used in LLaMA 3, Mistral.</p>
+        </div>
+        <div class="diagram-panel">
+            <h4>MQA</h4>
+            <p>h query heads<br>1 key head<br>1 value head</p>
+            <p style="font-size:0.8rem;color:var(--text-secondary);">Extreme case. Maximum KV saving; slight quality cost.</p>
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Cert relevance</div>
+        <p>GQA reduces the KV cache memory footprint proportionally to h/g without reducing the query expressiveness. This is the primary architectural lever for fitting longer context on consumer GPUs.</p>
+    </div>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>LLaMA 3 8B uses 32 query heads and 8 KV heads (g=8) &mdash; a 4&times; KV cache reduction vs MHA. LLaMA 3 70B uses 64 query heads and 8 KV heads &mdash; an 8&times; reduction. This is not an exam trick; it is the primary reason these models can serve long contexts on less VRAM than their parameter count alone would suggest.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 08 ─────────────────────────── -->
+<section class="slide" id="slide-08">
+    <div class="slide-number">08</div>
+    <h2>The Decoder Block &mdash; Pre-Norm and Residuals</h2>
+
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+            <rect width="600" height="340" fill="#0d1117" rx="8"/>
+
+            <!-- Title -->
+            <text x="300" y="24" fill="#76B900" font-size="12" text-anchor="middle" font-weight="600">Decoder Block (Pre-Norm)</text>
+
+            <!-- Input -->
+            <rect x="225" y="35" width="150" height="32" rx="4" fill="#161b22" stroke="#21262d"/>
+            <text x="300" y="56" fill="#e6edf3" font-size="11" text-anchor="middle">Residual stream x</text>
+
+            <!-- Residual branch line (left side) -->
+            <line x1="180" y1="51" x2="180" y2="190" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+            <!-- LayerNorm 1 -->
+            <rect x="225" y="85" width="150" height="30" rx="4" fill="#161b22" stroke="#21262d"/>
+            <text x="300" y="105" fill="#e6edf3" font-size="11" text-anchor="middle">RMSNorm / LayerNorm</text>
+
+            <!-- Attention -->
+            <rect x="200" y="133" width="200" height="36" rx="4" fill="#161b22" stroke="#76B900" stroke-width="1.5"/>
+            <text x="300" y="157" fill="#76B900" font-size="11" text-anchor="middle">Masked Multi-Head Attn</text>
+
+            <!-- Residual add circle 1 -->
+            <circle cx="300" cy="200" r="14" fill="#161b22" stroke="#76B900" stroke-width="1.5"/>
+            <text x="300" y="205" fill="#76B900" font-size="14" text-anchor="middle">+</text>
+
+            <!-- Arrow from residual branch to add circle -->
+            <line x1="180" y1="190" x2="285" y2="200" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+            <!-- LayerNorm 2 -->
+            <rect x="225" y="228" width="150" height="30" rx="4" fill="#161b22" stroke="#21262d"/>
+            <text x="300" y="248" fill="#e6edf3" font-size="11" text-anchor="middle">RMSNorm / LayerNorm</text>
+
+            <!-- FFN -->
+            <rect x="210" y="276" width="180" height="30" rx="4" fill="#161b22" stroke="#76B900" stroke-width="1.5"/>
+            <text x="300" y="297" fill="#76B900" font-size="11" text-anchor="middle">Feed-Forward (SwiGLU)</text>
+
+            <!-- Residual add circle 2 will be off-screen; indicate with arrow -->
+            <line x1="420" y1="200" x2="420" y2="290" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <text x="445" y="295" fill="#8b949e" font-size="9">+ residual</text>
+            <line x1="390" y1="291" x2="418" y2="291" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+            <!-- Vertical connector arrows -->
+            <line x1="300" y1="67" x2="300" y2="84" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr3)"/>
+            <line x1="300" y1="115" x2="300" y2="132" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr3)"/>
+            <line x1="300" y1="169" x2="300" y2="185" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr3)"/>
+            <line x1="300" y1="214" x2="300" y2="227" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr3)"/>
+            <line x1="300" y1="258" x2="300" y2="275" stroke="#76B900" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+            <!-- Residual branch from input -->
+            <line x1="225" y1="51" x2="181" y2="51" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+            <defs>
+                <marker id="arr3" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L6,3 z" fill="#76B900"/>
+                </marker>
+            </defs>
+        </svg>
+    </div>
+
+    <ul>
+        <li><strong>Pre-norm</strong>: LayerNorm/RMSNorm applied <em>before</em> each sub-layer. More stable training at depth; used in LLaMA, GPT-2. The original Transformer used post-norm (after the residual add).</li>
+        <li><strong>Residual connections</strong>: primary purpose is gradient flow (highway for backpropagation), not activation normalisation. Without residuals, gradients through N layers vanish.</li>
+        <li><strong>RMSNorm</strong>: drops the mean-subtraction step of LayerNorm, keeping only scale normalisation. Faster and empirically equivalent in practice.</li>
+    </ul>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The residuals question is a common distractor: "residuals normalise activations" is wrong. LayerNorm handles scale; residuals handle gradient flow. The exam may ask "what is the primary purpose of residual connections in a transformer?" &mdash; the answer is gradient flow / avoiding vanishing gradients.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 09 ─────────────────────────── -->
+<section class="slide" id="slide-09">
+    <div class="slide-number">09</div>
+    <h2>Feed-Forward Network &mdash; SwiGLU vs ReLU</h2>
+
+    <p>The FFN occupies roughly two-thirds of the total parameter count in a standard decoder-only model. It operates independently on each token position &mdash; no cross-token interaction.</p>
+
+    <div class="code-block">
+        <div class="code-header">Standard FFN (original Transformer)</div>
+        <pre><code><span class="fn">FFN</span>(x) = W&#8322; &#183; <span class="fn">ReLU</span>( W&#8321; x + b&#8321; ) + b&#8322;
+
+d_ff = 4 &#215; d_model  <span class="cm">-- Transformer base: 2048 = 4 &#215; 512</span></code></pre>
+    </div>
+
+    <div class="code-block">
+        <div class="code-header">SwiGLU FFN (LLaMA-style)</div>
+        <pre><code><span class="fn">FFN</span>(x) = ( W&#8321; x &#183; <span class="fn">SiLU</span>( W&#8322; x ) ) &#183; W&#8323;
+
+d_ff &#8776; (8/3) &#215; d_model  <span class="cm">-- keeps param count &#8776; 4&#215; ReLU FFN</span>
+<span class="cm">-- SiLU(x) = x &#183; sigmoid(x)  [smooth gating]</span></code></pre>
+    </div>
+
+    <h3>Parameter count formula</h3>
+    <p>For a single FFN layer with standard ReLU:</p>
+    <div class="code-block">
+        <div class="code-header">Formula</div>
+        <pre><code>params_ffn = 2 &#215; d_model &#215; d_ff  <span class="cm">-- two weight matrices (no bias for LLaMA)</span>
+           = 2 &#215; 4096 &#215; 11008   <span class="cm">-- LLaMA-2 7B (d_ff = 11008 &#8776; 8/3 &#215; 4096)</span>
+           &#8776; 90 M parameters per FFN block
+&#215; 32 blocks = ~2.9 B params from FFN alone</code></pre>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Why SwiGLU?</div>
+        <p>SwiGLU consistently outperforms ReLU and GELU at the same FLOP budget in ablations. The gating mechanism allows the network to selectively suppress or amplify features. The (8/3) factor is derived to keep total FLOPs comparable to a 4&times; ReLU FFN at identical d&#8346;.</p>
+    </div>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>SwiGLU has three weight matrices vs ReLU's two, but d_ff is reduced from 4&times; to 8/3&times; to compensate. In LLaMA 2 7B the actual d_ff is 11008 (slightly adjusted for divisibility). The FFN is the dominant parameter group in most transformer architectures &mdash; attention Q/K/V/O is roughly 1/3 of the block parameters for typical head dimensions.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 10 ─────────────────────────── -->
+<section class="slide" id="slide-10">
+    <div class="slide-number">10</div>
+    <h2>KV Cache &mdash; Memory Cost at Long Context</h2>
+
+    <p>During autoregressive generation, token <em>t</em> requires attention against all previous tokens. The KV cache stores the K and V projections for all past positions, so only the new token's Q, K, V need computing at each step.</p>
+
+    <div class="code-block">
+        <div class="code-header">KV Cache memory formula</div>
+        <pre><code>KV_bytes = 2 &#215; N_layers &#215; N_kv_heads &#215; d_k &#215; seq_len &#215; bytes_per_element
+
+<span class="cm">-- 7B model example (LLaMA-2 style, FP16):</span>
+<span class="cm">--   N_layers = 32, N_kv_heads = 32, d_k = 128, seq_len = 4096, bytes = 2</span>
+KV_bytes = 2 &#215; 32 &#215; 32 &#215; 128 &#215; 4096 &#215; 2 = 2,147,483,648 B &#8776; 2 GB
+
+<span class="cm">-- With GQA (N_kv_heads = 8, as in LLaMA-3 8B):</span>
+KV_bytes = 2 &#215; 32 &#215; 8 &#215; 128 &#215; 4096 &#215; 2 &#8776; 0.5 GB  <span class="cm">-- 4&#215; saving</span></code></pre>
+    </div>
+
+    <p>At sequence length 32&thinsp;768 (32K context), the KV cache for a 7B model with 32 KV heads reaches <strong>16 GB</strong> in FP16 &mdash; exceeding the total VRAM of an RTX 4000 Ada (20 GB) once model weights are also loaded. GQA and 8-bit KV quantisation are the primary mitigations.</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Technique</th><th>KV memory reduction</th><th>Quality impact</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>GQA (h=32 &rarr; 8)</td><td>4&times;</td><td>Negligible</td></tr>
+                <tr><td>MQA (h=32 &rarr; 1)</td><td>32&times;</td><td>Small quality loss</td></tr>
+                <tr><td>KV quantisation (FP16 &rarr; INT8)</td><td>2&times;</td><td>Very small</td></tr>
+                <tr><td>Paged attention (vLLM)</td><td>Removes fragmentation waste</td><td>None</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Cross-reference</div>
+        <p>KV cache quantisation and paged attention are covered in detail in <a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_19_TensorRT_LLM" style="color:var(--accent);">NVIDIA_GPU_19_TensorRT_LLM</a> and <a href="../../cheatsheets/quantisation_and_kv_cache.md" style="color:var(--accent);">cheatsheets/quantisation_and_kv_cache.md</a>.</p>
+    </div>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The KV cache formula is directly examinable. The 2&times; factor is for K and V (Q is not cached because the new query is computed fresh at each step). N_kv_heads is the GQA group count, not the query head count. At NCP level, candidates should be able to derive the formula and apply it to a given model configuration.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 11 ─────────────────────────── -->
+<section class="slide" id="slide-11">
+    <div class="slide-number">11</div>
+    <h2>Decoding Strategies &mdash; Greedy, Sampling, Speculative</h2>
+
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel accent-border">
+            <h4>Greedy Decoding</h4>
+            <p>Always select the highest-probability token: argmax over logits. Deterministic. Fast. Prone to degenerate repetition on open-ended generation tasks.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Sampling (Temperature, Top-p, Top-k)</h4>
+            <p>Sample from the probability distribution. <strong>Temperature</strong> &tau; divides logits before softmax &mdash; &tau;&lt;1 sharpens, &tau;&gt;1 flattens. <strong>Top-p</strong> (nucleus) samples from the smallest set of tokens summing to p. <strong>Top-k</strong> restricts to the k highest-probability tokens.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Speculative Decoding</h4>
+            <p>A small draft model generates candidate tokens cheaply; the large target model verifies them in parallel. Accepted tokens are kept; the first rejected token is resampled. Speedup 2&ndash;4&times; on aligned draft/target pairs, with exact output distribution preserved.</p>
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Cross-reference</div>
+        <p>Full treatment of sampling parameters and speculative decoding in <a href="../../cheatsheets/sampling_and_decoding.md" style="color:var(--accent);">cheatsheets/sampling_and_decoding.md</a>.</p>
+    </div>
+
+    <h3>Key distinctions for the exam</h3>
+    <ul>
+        <li><strong>Temperature = 0</strong> is equivalent to greedy decoding (argmax).</li>
+        <li><strong>Top-p = 1.0, Top-k = 0</strong> disables nucleus/top-k filtering &mdash; full distribution sampling.</li>
+        <li><strong>Speculative decoding</strong> does not change the output distribution; it is a latency optimisation only. Draft model errors are rejected via the target model's verification step.</li>
+        <li>Beam search is not sampling; it maintains multiple hypotheses but is rarely used in modern autoregressive LLMs due to memory cost and tendency towards generic outputs.</li>
+    </ul>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>A common exam trap: "speculative decoding improves output quality." It does not &mdash; it preserves the target distribution exactly (under ideal conditions). The speedup comes from parallelising draft token verification across the target model's batch dimension. The draft model is typically 7-8&times; smaller than the target.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 12 ─────────────────────────── -->
+<section class="slide" id="slide-12">
+    <div class="slide-number">12</div>
+    <h2>Architecture Families &mdash; Decoder, Encoder-Decoder, Encoder-Only</h2>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Architecture</th><th>Self-attention mask</th><th>Cross-attention</th><th>Typical use</th><th>Examples</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Encoder-only</strong></td>
+                    <td>Bidirectional (no causal mask)</td>
+                    <td>None</td>
+                    <td>Classification, embedding, NER, sentence similarity</td>
+                    <td>BERT, RoBERTa, E5, BGE</td>
+                </tr>
+                <tr>
+                    <td><strong>Encoder-decoder</strong></td>
+                    <td>Encoder: bidirectional; Decoder: causal</td>
+                    <td>Decoder attends to encoder output</td>
+                    <td>Translation, summarisation, seq2seq</td>
+                    <td>T5, BART, mT5</td>
+                </tr>
+                <tr>
+                    <td><strong>Decoder-only</strong></td>
+                    <td>Causal (autoregressive)</td>
+                    <td>None (or prefix attention)</td>
+                    <td>Language modelling, instruction following, generation</td>
+                    <td>GPT-4, LLaMA, Mistral, Gemma</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>The original Transformer (Vaswani et al., 2017) was encoder-decoder for machine translation. The shift to decoder-only at scale reflects empirical evidence that next-token prediction on a diverse corpus is a more scalable pretraining objective than seq2seq on task-specific data.</p>
+
+    <div class="callout">
+        <div class="callout-label">Exam angle</div>
+        <p><strong>Encoder-only models are not autoregressive</strong> and cannot generate text in the decoder-only sense. They are used for dense representations (embeddings for RAG retrieval, sentence classification). A question asking "which architecture is best for semantic search?" points to encoder-only (bi-encoder). "Which for instruction following?" points to decoder-only.</p>
+    </div>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The encoder-decoder distinction in the context of RAG is important: the embedding models used in the retrieval stage (BERT-family, E5, BGE) are encoder-only. The generator at the end of the RAG pipeline is decoder-only. This is a cross-domain question that bridges the transformer architecture and RAG topics.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 13 ─────────────────────────── -->
+<section class="slide" id="slide-13">
+    <div class="slide-number">13</div>
+    <h2>Modern Variants &mdash; MoE, Mamba, Hybrids</h2>
+
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel accent-border">
+            <h4>Mixture of Experts (MoE)</h4>
+            <p>Replaces the dense FFN with E expert FFNs. A gating network selects top-K experts per token. Total parameters grow but active parameters (FLOPs per token) stay constant.</p>
+            <p><strong>Canonical examples:</strong> Switch Transformer, Mixtral 8&times;7B, DeepSeek-V2.</p>
+            <p><strong>Trade-offs:</strong> load balancing (expert collapse), communication overhead in multi-GPU deployments, expert routing as a source of training instability.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Mamba / SSMs</h4>
+            <p>Selective state-space models replace attention with a recurrent formulation. Time complexity O(n) vs O(n&sup2;) for attention.</p>
+            <p><strong>Weakness:</strong> less effective at sharp content-based retrieval over long context compared to attention. Hybrids (Jamba, Zamba) address this.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Hybrid Models</h4>
+            <p>Interleave attention layers (global, content-based) with SSM or convolution layers (cheap local processing). Field is active.</p>
+            <p>Decoder-only transformers with RoPE and GQA remain the majority of production deployments as of 2026.</p>
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Cross-reference</div>
+        <p>Full technical treatment of MoE architecture, routing algorithms, and training instabilities in <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Modern_Architectures" style="color:var(--accent);">LLM_Hub_Modern_Architectures</a>. MoE VRAM and routing in <a href="https://github.com/BrendanJamesLynskey/Arch_01_MoE" style="color:var(--accent);">Arch_01_MoE</a>.</p>
+    </div>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>For the NCA exam, MoE is tested at the conceptual level: total params vs active params, and the load-balancing challenge. The NCP may ask about expert routing (top-K gating), auxiliary load-balancing loss, and why MoE improves parameter efficiency. Mamba and SSMs are more likely on a general ML exam than on the NVIDIA cert specifically, but understanding the O(n) vs O(n&sup2;) comparison is fair game.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 14 ─────────────────────────── -->
+<section class="slide" id="slide-14">
+    <div class="slide-number">14</div>
+    <h2>Likely Exam Angles</h2>
+
+    <p>The following are the six most frequently examined points drawn from <a href="../../notes/02_transformer_architecture.md" style="color:var(--accent);">notes/02_transformer_architecture.md</a> and community NCA/NCP reports:</p>
+
+    <ul>
+        <li><strong>1/&#8730;d&#8342; scaling rationale</strong> &mdash; variance stability at the softmax input, not output magnitude normalisation. Distractors claim the latter.</li>
+        <li><strong>Pre-norm vs post-norm</strong> &mdash; modern models (GPT-2, LLaMA) use pre-norm for training stability at depth. The original Transformer used post-norm. Questions may name a specific architecture and ask which norm order it uses.</li>
+        <li><strong>KV cache memory formula</strong> &mdash; 2 &times; N_layers &times; N_kv_heads &times; d_k &times; seq_len &times; bytes. GQA reduces N_kv_heads; it does not reduce query heads. Must be derivable from first principles.</li>
+        <li><strong>Encoder-only vs decoder-only</strong> &mdash; encoder-only (BERT) uses bidirectional attention and is not autoregressive; used for representation and classification, not generation. The distinction matters for RAG embedding model selection.</li>
+        <li><strong>RoPE vs ALiBi mechanism</strong> &mdash; RoPE rotates Q and K before the dot product; ALiBi adds a linear distance penalty after the dot product but before softmax. Both enable length extrapolation through different mechanisms.</li>
+        <li><strong>Residual connection purpose</strong> &mdash; gradient flow through depth, not activation normalisation. Activation scale is managed by LayerNorm/RMSNorm. A question asking "what is the primary purpose of residual connections?" should answer gradient flow.</li>
+    </ul>
+
+    <div class="callout">
+        <div class="callout-label">Also worth noting</div>
+        <p>DPO eliminates the reward model but keeps the reference model. LoRA adds zero inference overhead after merging. S-LoRA is for multi-adapter serving, not single-adapter speed. These cross into the fine-tuning domain but are rooted in the same architecture understanding.</p>
+    </div>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The exam angle list comes from the notes file and patterns observed across the NCA/NCP question bank. These are not guaranteed questions but represent the highest-probability coverage areas given the domain weightings. The 1/&#8730;d&#8342; scaling question has appeared in multiple candidate reports.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 15 ─────────────────────────── -->
+<section class="slide" id="slide-15">
+    <div class="slide-number">15</div>
+    <h2>Cross-References and Further Reading</h2>
+
+    <h3>Portfolio repos (depth treatment)</h3>
+    <ul>
+        <li><a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Transformer_Architecture" style="color:var(--accent);">LLM_Hub_Transformer_Architecture</a> &mdash; interactive visual walkthrough, RTL implementation, PyTorch from scratch.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Modern_Architectures" style="color:var(--accent);">LLM_Hub_Modern_Architectures</a> &mdash; MoE, Mamba, hybrids.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/Arch_01_MoE" style="color:var(--accent);">Arch_01_MoE</a> &mdash; MoE routing, load balancing, VRAM.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_19_TensorRT_LLM" style="color:var(--accent);">NVIDIA_GPU_19_TensorRT_LLM</a> &mdash; inference engine, KV cache optimisation, paged attention.</li>
+    </ul>
+
+    <h3>Cert-prep repo resources</h3>
+    <ul>
+        <li><a href="../../notes/02_transformer_architecture.md" style="color:var(--accent);">notes/02_transformer_architecture.md</a> &mdash; the notes this deck is built from.</li>
+        <li><a href="../../cheatsheets/transformer_math_one_pager.md" style="color:var(--accent);">cheatsheets/transformer_math_one_pager.md</a> &mdash; all formulas on one page.</li>
+        <li><a href="../../cheatsheets/sampling_and_decoding.md" style="color:var(--accent);">cheatsheets/sampling_and_decoding.md</a> &mdash; decoding strategies.</li>
+        <li><a href="../../cheatsheets/quantisation_and_kv_cache.md" style="color:var(--accent);">cheatsheets/quantisation_and_kv_cache.md</a> &mdash; quantisation and KV cache.</li>
+    </ul>
+
+    <h3>Primary literature</h3>
+    <ul>
+        <li>Vaswani et al., "Attention Is All You Need" (2017): <a href="https://arxiv.org/abs/1706.03762" style="color:var(--accent);">arxiv.org/abs/1706.03762</a></li>
+        <li>Su et al., "RoFormer / RoPE" (2021): <a href="https://arxiv.org/abs/2104.09864" style="color:var(--accent);">arxiv.org/abs/2104.09864</a></li>
+        <li>Press et al., "ALiBi" (2021): <a href="https://arxiv.org/abs/2108.12409" style="color:var(--accent);">arxiv.org/abs/2108.12409</a></li>
+        <li>Ainslie et al., "GQA" (2023): <a href="https://arxiv.org/abs/2305.13245" style="color:var(--accent);">arxiv.org/abs/2305.13245</a></li>
+        <li>Dao et al., "FlashAttention" (2022): <a href="https://arxiv.org/abs/2205.14135" style="color:var(--accent);">arxiv.org/abs/2205.14135</a></li>
+    </ul>
+
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The cert exam does not test literature knowledge directly, but understanding the primary papers builds the conceptual grounding needed to answer mechanism questions correctly. The GQA paper is particularly worth reading as GQA/MQA is a frequent exam topic.</p>
+    </aside>
+</section>
+
+<footer class="footer">
+    <p>
+        <a href="https://github.com/BrendanJamesLynskey/NVIDIA_GenAI_LLMs_Cert_Prep">NVIDIA GenAI LLMs Cert Prep</a>
+        &nbsp;&mdash;&nbsp;
+        <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Transformer_Architecture">LLM_Hub_Transformer_Architecture</a>
+        &nbsp;&mdash;&nbsp;
+        <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Modern_Architectures">LLM_Hub_Modern_Architectures</a>
+    </p>
+    <p style="margin-top:0.75rem;">NVIDIA GenAI Cert Prep &mdash; Presentation 01 of 05</p>
+</footer>
+
+<script>
+    // Speaker notes toggle is handled via CSS class on body.
+    // The button at top of page toggles body.notes-visible.
+</script>
 </body>
 </html>

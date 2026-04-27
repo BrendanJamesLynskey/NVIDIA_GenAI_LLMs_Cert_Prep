@@ -1,10 +1,574 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Peft And Fine Tuning — Stub</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEFT and Fine-Tuning — NVIDIA GenAI Cert Prep</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #0d1117;
+            --bg-code: #161b22;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #76B900;
+            --accent-dim: #76B90044;
+            --accent-glow: #76B90033;
+            --border: #21262d;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); font-size: 17px; line-height: 1.7; overflow-x: hidden; }
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem; text-align: center; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+        .hero > * { position: relative; z-index: 1; }
+        .series-label { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; }
+        .hero h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; color: var(--text-primary); line-height: 1.2; margin-bottom: 1rem; }
+        .hero h1 .accent { color: var(--accent); }
+        .hero .subtitle { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin-bottom: 2rem; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2.5rem; }
+        .tag { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); background: var(--accent-dim); white-space: nowrap; }
+        .pipeline { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.25rem; margin-bottom: 1rem; max-width: var(--max-width); }
+        .pipeline-step { font-family: var(--font-mono); font-size: 0.7rem; padding: 0.3rem 0.7rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; color: var(--text-secondary); white-space: nowrap; }
+        .pipeline-arrow { color: var(--accent); font-size: 0.9rem; font-weight: 700; }
+        .slide { min-height: 100vh; max-width: var(--max-width); margin: 0 auto; padding: 4rem 1.5rem; position: relative; display: flex; flex-direction: column; justify-content: center; }
+        .slide-number { font-family: var(--font-display); font-size: 5rem; font-weight: 700; color: var(--accent-dim); position: absolute; top: 2rem; right: 1.5rem; line-height: 1; user-select: none; }
+        .slide h2 { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; color: var(--accent); margin-bottom: 1.5rem; line-height: 1.25; }
+        .slide h3 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; color: var(--text-primary); margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .slide p { margin-bottom: 1rem; color: var(--text-secondary); }
+        .slide p strong { color: var(--text-primary); }
+        .slide ul, .slide ol { margin-bottom: 1rem; padding-left: 1.5rem; color: var(--text-secondary); }
+        .slide li { margin-bottom: 0.4rem; }
+        .slide li strong { color: var(--text-primary); }
+        .code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; margin: 1.25rem 0; overflow: hidden; }
+        .code-header { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); background: rgba(118, 185, 0, 0.08); padding: 0.4rem 1rem; border-bottom: 1px solid var(--border); }
+        .code-block pre { margin: 0; padding: 1rem; overflow-x: auto; }
+        .code-block code { font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #c9d1d9; }
+        .cm { color: #8b949e; font-style: italic; }
+        .kw { color: #ff7b72; }
+        .num { color: #79c0ff; }
+        .type { color: #ffa657; }
+        .table-wrap { overflow-x: auto; margin: 1.25rem 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { background: var(--bg-code); color: var(--accent); font-weight: 600; text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); font-family: var(--font-display); white-space: nowrap; }
+        td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background: rgba(13, 17, 23, 0.5); }
+        .diagram-grid { display: grid; gap: 0.75rem; margin: 1.5rem 0; padding: 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; }
+        .diagram-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .diagram-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .diagram-panel { padding: 1rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 6px; }
+        .diagram-panel.accent-border { border-left: 3px solid var(--accent); }
+        .diagram-panel h4 { font-family: var(--font-display); font-size: 1rem; color: var(--accent); margin-bottom: 0.5rem; }
+        .diagram-panel p, .diagram-panel ul { font-size: 0.85rem; }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin: 1.25rem 0; }
+        .callout p { margin-bottom: 0; }
+        .callout .callout-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem; }
+        .contents-list { list-style: none; padding-left: 0; counter-reset: contents; }
+        .contents-list li { counter-increment: contents; padding: 0.6rem 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+        .contents-list li:last-child { border-bottom: none; }
+        .contents-list li::before { content: counter(contents, decimal-leading-zero); font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); min-width: 2rem; }
+        .contents-list a { color: var(--text-primary); text-decoration: none; transition: color 0.2s; }
+        .contents-list a:hover { color: var(--accent); }
+        .footer { text-align: center; padding: 3rem 1.5rem; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border); max-width: var(--max-width); margin: 0 auto; }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .canvas-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin: 1.25rem 0; overflow-x: auto; }
+        .canvas-wrap svg { display: block; margin: 0 auto; max-width: 100%; }
+        .notes-toggle { position: fixed; top: 1rem; right: 1rem; z-index: 999; font-family: var(--font-mono); font-size: 0.75rem; padding: 0.35rem 0.8rem; background: var(--bg-card); border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; cursor: pointer; }
+        .notes-toggle:hover { background: var(--accent-dim); }
+        .speaker-notes { display: none; background: rgba(118, 185, 0, 0.04); border: 1px solid var(--accent-dim); border-radius: 8px; padding: 1rem 1.25rem; margin-top: 2rem; font-size: 0.85rem; color: var(--text-secondary); }
+        .speaker-notes .notes-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+        body.notes-visible .speaker-notes { display: block; }
+        @media (max-width: 640px) {
+            .slide { padding: 3rem 1rem; min-height: auto; }
+            .slide-number { font-size: 3rem; top: 1.5rem; right: 1rem; }
+            .slide h2 { font-size: 1.5rem; }
+            .diagram-grid.cols-2, .diagram-grid.cols-3 { grid-template-columns: 1fr; }
+            .pipeline { gap: 0.15rem; }
+            .pipeline-step { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
+            .hero h1 { font-size: 1.8rem; }
+            table { font-size: 0.78rem; }
+        }
+    </style>
 </head>
 <body>
-<p>Stub — Phase 6 fills this.</p>
+
+<button class="notes-toggle" onclick="document.body.classList.toggle('notes-visible')">Speaker Notes</button>
+
+<header class="hero">
+    <div class="series-label">NVIDIA GenAI Cert Prep &mdash; Presentation 03</div>
+    <h1><span class="accent">PEFT</span> and Fine-Tuning</h1>
+    <p class="subtitle">Parameter-efficient fine-tuning, the post-training stack, and the VRAM trade-offs that decide which method fits which GPU. Cert-focused synthesis of LoRA, QLoRA, DoRA, RLHF, DPO, and Constitutional AI.</p>
+
+    <div class="tags">
+        <span class="tag">NCA Experimentation 22%</span>
+        <span class="tag">NCP Fine-Tuning 13%</span>
+        <span class="tag">LoRA</span>
+        <span class="tag">QLoRA</span>
+        <span class="tag">DoRA</span>
+        <span class="tag">RLHF</span>
+        <span class="tag">DPO</span>
+        <span class="tag">CAI</span>
+    </div>
+
+    <div class="pipeline">
+        <span class="pipeline-step">Pretrain</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">SFT</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Preference</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Constitutional</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Deploy</span>
+    </div>
+</header>
+
+<!-- ─────────────────────────── SLIDE 00 ─────────────────────────── -->
+<section class="slide" id="slide-00">
+    <div class="slide-number">00</div>
+    <h2>Topics in This Deck</h2>
+    <p>A cert-focused tour of the post-training stack &mdash; supervised fine-tuning, parameter-efficient adapters, preference optimisation, and how each method trades VRAM for capability.</p>
+    <ul class="contents-list">
+        <li><a href="#slide-01">Cert Framing &mdash; Exam Domains</a></li>
+        <li><a href="#slide-02">The Post-Training Stack</a></li>
+        <li><a href="#slide-03">Full FT vs PEFT &mdash; Decision Tree</a></li>
+        <li><a href="#slide-04">SFT Essentials</a></li>
+        <li><a href="#slide-05">LoRA &mdash; The Math</a></li>
+        <li><a href="#slide-06">LoRA Hyperparameters</a></li>
+        <li><a href="#slide-07">QLoRA &mdash; NF4 and Paged Optimisers</a></li>
+        <li><a href="#slide-08">DoRA and IA&sup3;</a></li>
+        <li><a href="#slide-09">RLHF &mdash; Bradley-Terry, PPO, KL</a></li>
+        <li><a href="#slide-10">DPO and Cousins</a></li>
+        <li><a href="#slide-11">Constitutional AI and RLAIF</a></li>
+        <li><a href="#slide-12">VRAM Budgeting &mdash; Worked Example</a></li>
+        <li><a href="#slide-13">Multi-LoRA Serving</a></li>
+        <li><a href="#slide-14">Tooling Landscape</a></li>
+        <li><a href="#slide-15">Likely Exam Angles</a></li>
+        <li><a href="#slide-16">Cross-References and Further Reading</a></li>
+    </ul>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Fine-tuning sits across two large NCA/NCP domains. The exams probe both the theoretical layer (which method, why) and the practical layer (which method fits in 20 GB, what hyperparameters control what). VRAM math is the most testable numerical-reasoning topic in this deck.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 01 ─────────────────────────── -->
+<section class="slide" id="slide-01">
+    <div class="slide-number">01</div>
+    <h2>Cert Framing &mdash; Exam Domains</h2>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>NCA-GENL Associate</h4>
+            <p><strong>Experimentation</strong></p>
+            <p style="font-family:var(--font-mono);font-size:1.4rem;color:var(--accent);">22%</p>
+            <p style="font-size:0.85rem;">Method-selection scenarios &mdash; given a problem (small labelled dataset, limited compute, latency targets), pick fine-tune vs RAG vs prompt and justify. PEFT covered conceptually.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>NCP-GENL Professional</h4>
+            <p><strong>Fine-Tuning</strong></p>
+            <p style="font-family:var(--font-mono);font-size:1.4rem;color:var(--accent);">13%</p>
+            <p style="font-size:0.85rem;">Numerical depth &mdash; LoRA parameter count from rank/target_modules, QLoRA quantisation impact, RLHF three-model VRAM, DPO derivation, multi-LoRA serving.</p>
+        </div>
+    </div>
+    <div class="callout">
+        <div class="callout-label">Cross-domain bleed</div>
+        <p>Fine-tuning decisions interact with Data Preparation (9%) on dataset construction, with Safety (5%) on refusal training, and with Model Optimisation (17%) on adapter merging vs multi-LoRA serving choices.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Cert questions in this area often present three options (full FT, LoRA, QLoRA) with VRAM numbers and ask which fits. Memorise the formula, not specific numbers.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 02 ─────────────────────────── -->
+<section class="slide" id="slide-02">
+    <div class="slide-number">02</div>
+    <h2>The Post-Training Stack</h2>
+    <p>A pretrained base model predicts next tokens; it does not produce helpful or safe outputs. Post-training shapes the model. Modern stacks compose four stages in sequence:</p>
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 820 140" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+            <rect width="820" height="140" fill="#0d1117" rx="8"/>
+            <rect x="20" y="40" width="140" height="60" rx="6" fill="#161b22" stroke="#76B900"/>
+            <text x="90" y="68" fill="#76B900" font-size="13" text-anchor="middle">Pretrain</text>
+            <text x="90" y="88" fill="#8b949e" font-size="9" text-anchor="middle">Trillions of tokens</text>
+            <line x1="160" y1="70" x2="200" y2="70" stroke="#76B900" stroke-width="2" marker-end="url(#a)"/>
+            <rect x="200" y="40" width="140" height="60" rx="6" fill="#161b22" stroke="#21262d"/>
+            <text x="270" y="68" fill="#e6edf3" font-size="13" text-anchor="middle">SFT</text>
+            <text x="270" y="88" fill="#8b949e" font-size="9" text-anchor="middle">Instruction pairs</text>
+            <line x1="340" y1="70" x2="380" y2="70" stroke="#76B900" stroke-width="2" marker-end="url(#a)"/>
+            <rect x="380" y="40" width="140" height="60" rx="6" fill="#161b22" stroke="#21262d"/>
+            <text x="450" y="68" fill="#e6edf3" font-size="13" text-anchor="middle">RLHF or DPO</text>
+            <text x="450" y="88" fill="#8b949e" font-size="9" text-anchor="middle">Preference pairs</text>
+            <line x1="520" y1="70" x2="560" y2="70" stroke="#76B900" stroke-width="2" marker-end="url(#a)"/>
+            <rect x="560" y="40" width="140" height="60" rx="6" fill="#161b22" stroke="#21262d"/>
+            <text x="630" y="68" fill="#e6edf3" font-size="13" text-anchor="middle">CAI / RLAIF</text>
+            <text x="630" y="88" fill="#8b949e" font-size="9" text-anchor="middle">Self-critique</text>
+            <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="#76B900"/></marker></defs>
+        </svg>
+    </div>
+    <p>Not every model goes through all four. A domain-specialist may do SFT only. A safety-critical assistant adds RLHF then CAI. Each stage is independently optional but the order matters: preference tuning needs an SFT-style policy to start from.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Order on the exam: pretrain &rarr; SFT &rarr; preference &rarr; constitutional. Skipping SFT before preference is the textbook mistake; reward models trained on a base-LM policy give garbage signal.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 03 ─────────────────────────── -->
+<section class="slide" id="slide-03">
+    <div class="slide-number">03</div>
+    <h2>Full FT vs PEFT &mdash; Decision Tree</h2>
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Method</th><th>VRAM (rough)</th><th>When to choose</th></tr></thead>
+        <tbody>
+            <tr><td>Full SFT (BF16)</td><td>~16 bytes/param</td><td>Large dataset, &lt;1B model on consumer GPU, or you have multi-GPU and need maximum capability shift</td></tr>
+            <tr><td>LoRA (BF16 base)</td><td>~3 bytes/param + adapters</td><td>Default for most tasks. Adapter switching, multi-tenant serving, predictable VRAM.</td></tr>
+            <tr><td>QLoRA (NF4 base)</td><td>~0.6 bytes/param + adapters</td><td>Largest model that fits. RTX 4000 Ada (20 GB) hosts 13B comfortably, 30B with activations checkpointing.</td></tr>
+            <tr><td>DoRA</td><td>Like LoRA + small overhead</td><td>When LoRA underperforms and you want closer to full-FT quality without the memory.</td></tr>
+            <tr><td>IA&sup3;</td><td>Tiny (3 vectors per layer)</td><td>Strong inductive bias, very small adapter, less expressive than LoRA on hard tasks.</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <div class="callout">
+        <div class="callout-label">Rule of thumb</div>
+        <p>Default to LoRA. Fall back to QLoRA when memory binds. Reach for DoRA when LoRA accuracy disappoints. Reach for full FT when capability shift is large and you have the compute. Reach for IA&sup3; when you must minimise adapter size for serving.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Cert distractors will mix up VRAM estimates &mdash; e.g. claiming QLoRA needs 16 bytes/param. The actual NF4 weight size is 4 bits = 0.5 bytes/param plus quantisation overhead.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 04 ─────────────────────────── -->
+<section class="slide" id="slide-04">
+    <div class="slide-number">04</div>
+    <h2>SFT Essentials</h2>
+    <p>Supervised fine-tuning trains the base model on instruction/response pairs with a chat template applied. The loss is computed on the response tokens only &mdash; <strong>loss masking</strong> on the prompt side avoids learning to predict the user.</p>
+    <h3>The hyperparameters that matter</h3>
+    <ul>
+        <li><strong>Learning rate</strong> &mdash; typically 1e-5 to 5e-5 for full FT, 1e-4 to 3e-4 for LoRA. Too high collapses the base, too low under-trains.</li>
+        <li><strong>Batch size and gradient accumulation</strong> &mdash; effective batch 32-128 typical; accumulation lets a 20 GB GPU emulate large batches.</li>
+        <li><strong>Sample packing</strong> &mdash; concatenate variable-length examples up to max sequence length; cuts wasted padding by 30-60% on instruction data.</li>
+        <li><strong>Chat template</strong> &mdash; must match the base model's training template (Llama-3, Qwen2.5, ChatML); mismatched template silently degrades performance.</li>
+    </ul>
+    <h3>Tooling</h3>
+    <p>Axolotl, TRL (Hugging Face), Unsloth (memory-optimised), torchtune, NeMo Framework. All implement the same fundamentals; differ on ergonomics, speed, and which methods they expose first.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Loss masking is the most common SFT bug: forgetting to mask the prompt teaches the model to predict the user's instruction, which hurts both training stability and inference behaviour.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 05 ─────────────────────────── -->
+<section class="slide" id="slide-05">
+    <div class="slide-number">05</div>
+    <h2>LoRA &mdash; The Math</h2>
+    <p>Hu et al. (2021): instead of updating the full weight matrix W, freeze it and learn a low-rank update. The forward pass becomes <strong>h = W&#8320;x + BAx</strong>, where W&#8320; is the frozen pretrained weight, A is d&times;r and B is r&times;d, with r &lt;&lt; d.</p>
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+            <rect width="700" height="220" fill="#0d1117" rx="8"/>
+            <rect x="40" y="60" width="100" height="100" fill="#21262d" stroke="#21262d"/>
+            <text x="90" y="115" fill="#8b949e" font-size="14" text-anchor="middle">W&#8320;</text>
+            <text x="90" y="40" fill="#8b949e" font-size="10" text-anchor="middle">d &times; d frozen</text>
+            <text x="170" y="115" fill="#76B900" font-size="20" text-anchor="middle">+</text>
+            <rect x="200" y="60" width="60" height="100" fill="#161b22" stroke="#76B900"/>
+            <text x="230" y="115" fill="#76B900" font-size="14" text-anchor="middle">B</text>
+            <text x="230" y="40" fill="#8b949e" font-size="10" text-anchor="middle">d &times; r</text>
+            <rect x="280" y="100" width="100" height="20" fill="#161b22" stroke="#76B900"/>
+            <text x="330" y="115" fill="#76B900" font-size="14" text-anchor="middle">A</text>
+            <text x="330" y="90" fill="#8b949e" font-size="10" text-anchor="middle">r &times; d</text>
+            <text x="430" y="115" fill="#8b949e" font-size="14">trainable params: 2&middot;d&middot;r</text>
+            <text x="430" y="140" fill="#8b949e" font-size="14">vs full: d&middot;d</text>
+            <text x="430" y="165" fill="#76B900" font-size="14">ratio: 2r/d</text>
+        </svg>
+    </div>
+    <p>For d=4096 and r=8: full update has 16.8M params, LoRA update has 65k &mdash; a 256&times; reduction. The base weights are untouched, so multiple LoRA adapters can be swapped on the same base at inference time.</p>
+    <p><strong>Initialisation:</strong> A is Gaussian, B is zero. At training start, BAx = 0, so the model starts identical to the base. Training shifts the residual.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The 2&middot;d&middot;r vs d&sup2; comparison is the single most testable LoRA fact. The B-zero initialisation is also commonly probed.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 06 ─────────────────────────── -->
+<section class="slide" id="slide-06">
+    <div class="slide-number">06</div>
+    <h2>LoRA Hyperparameters</h2>
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Hyperparameter</th><th>Typical value</th><th>What it controls</th></tr></thead>
+        <tbody>
+            <tr><td><code>r</code> (rank)</td><td>4&ndash;64</td><td>Capacity of the adapter. Higher r = more expressive, more VRAM. r=8 is a strong default.</td></tr>
+            <tr><td><code>alpha</code></td><td>16&ndash;32</td><td>Scaling factor. Effective contribution = (alpha/r) &middot; BAx. Convention: alpha = 2r.</td></tr>
+            <tr><td><code>target_modules</code></td><td>q_proj, v_proj (typical)</td><td>Which weight matrices get adapters. Q+V is the LoRA-paper recommendation; adding K, O, FFN raises capacity and cost.</td></tr>
+            <tr><td><code>dropout</code></td><td>0.05&ndash;0.1</td><td>Regularisation on the adapter activation. Higher for small datasets.</td></tr>
+            <tr><td><code>bias</code></td><td>none / lora_only / all</td><td>Whether to also train the bias terms; usually 'none'.</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <div class="callout">
+        <div class="callout-label">Common mistake</div>
+        <p>Setting alpha=r looks neutral but actually halves the contribution because alpha/r=1 instead of the more typical 2. Worth checking when porting configs across frameworks.</p>
+    </div>
+    <p>For full coverage of variants and the math, see <a href="https://github.com/BrendanJamesLynskey/FT_02_LoRA_and_PEFT_Variants" style="color:var(--accent);">FT_02_LoRA_and_PEFT_Variants</a>.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The most-tested LoRA decisions: r selection, target_modules choice (Q+V vs all-linear), and the alpha-r relationship. For Qwen and Llama families, q_proj and v_proj are correct; for older GPT-2 it's c_attn.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 07 ─────────────────────────── -->
+<section class="slide" id="slide-07">
+    <div class="slide-number">07</div>
+    <h2>QLoRA &mdash; NF4 and Paged Optimisers</h2>
+    <p>Dettmers et al. (2023). Push the base weights to 4-bit while keeping the adapter in BF16. Three pieces:</p>
+    <ul>
+        <li><strong>NF4 (NormalFloat 4-bit).</strong> A 4-bit float format optimised for normally-distributed weights &mdash; 16 levels chosen to be the optimal quantisation points for a normal distribution. Better than naive INT4 for transformer weights.</li>
+        <li><strong>Double quantisation.</strong> The per-block scaling factors are themselves quantised, saving an additional ~0.4 bits/param.</li>
+        <li><strong>Paged optimisers.</strong> Optimiser state pages between GPU and CPU memory on the fly. Prevents OOM during gradient peaks.</li>
+    </ul>
+    <div class="callout">
+        <div class="callout-label">Headline result</div>
+        <p>QLoRA fine-tuned 65B Llama on a single 48 GB GPU. The same approach scales down: 7B fits in 8 GB, 13B in 16 GB, 70B in 48-80 GB.</p>
+    </div>
+    <p>Forward pass: dequantise NF4 weights to BF16 on the fly per layer, then standard LoRA forward. Backward pass updates only the adapter; the NF4 weights are never updated.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Common confusion: QLoRA quantises the base, not the adapter. The adapter stays full precision (BF16/FP32), which is why accuracy holds.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 08 ─────────────────────────── -->
+<section class="slide" id="slide-08">
+    <div class="slide-number">08</div>
+    <h2>DoRA and IA&sup3;</h2>
+    <h3>DoRA &mdash; Weight-Decomposed LoRA</h3>
+    <p>Liu et al. (2024). Decomposes the weight update into <strong>magnitude</strong> and <strong>direction</strong>. LoRA learns the direction; a separate scalar per output channel learns the magnitude. Empirically closes much of the gap to full fine-tuning at LoRA-like cost. Selected ICML 2024 Oral.</p>
+    <h3>IA&sup3; &mdash; Infused Adapter by Inhibiting and Amplifying</h3>
+    <p>Liu et al. (2022). Three small learned vectors per layer: scale K, scale V, scale FFN intermediate. <strong>~10&times; fewer parameters than LoRA</strong> at similar performance on a range of tasks, but less expressive on harder problems.</p>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>When DoRA wins</h4>
+            <p>Tasks where LoRA underperforms relative to full FT and you have the parameter budget for a small magnitude vector per channel.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>When IA&sup3; wins</h4>
+            <p>Adapter size is the binding constraint &mdash; serving thousands of customer adapters, or where storage/transfer of adapters dominates cost.</p>
+        </div>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>NCP exam may test the DoRA decomposition idea (magnitude-direction split) or the IA&sup3; vector count (3 per layer). LoRA-paper depth is fair game; DoRA/IA&sup3; mostly conceptual.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 09 ─────────────────────────── -->
+<section class="slide" id="slide-09">
+    <div class="slide-number">09</div>
+    <h2>RLHF &mdash; Bradley-Terry, PPO, KL</h2>
+    <p>Reinforcement Learning from Human Feedback. Three models live concurrently in memory: the policy (the SFT model being optimised), a frozen reference (initial SFT model), and the reward model.</p>
+    <h3>Pipeline</h3>
+    <ol>
+        <li><strong>Reward model training.</strong> Take a dataset of preferred/rejected response pairs. Train a reward head on top of the SFT model under the <strong>Bradley-Terry</strong> assumption: P(y&#8321; preferred over y&#8322;) = &sigma;(r(y&#8321;) - r(y&#8322;)).</li>
+        <li><strong>Policy optimisation with PPO.</strong> Sample responses from the policy, score with the reward model, update the policy to maximise reward, with a KL penalty against the reference to prevent reward hacking.</li>
+    </ol>
+    <h3>The KL penalty</h3>
+    <p>Without it, the policy gradient pushes the model towards extreme outputs that maximise reward but no longer resemble fluent text. With KL = &beta; &middot; KL(&pi;&#8210;policy &Vert; &pi;&#8210;ref), the policy stays close to the reference distribution. Tuning &beta; is the central RLHF hyperparameter.</p>
+    <div class="callout">
+        <div class="callout-label">VRAM note</div>
+        <p>Three model copies plus PPO actor-critic state: RLHF is memory-heavy. A 7B model at full precision needs ~80 GB; QLoRA RLHF (e.g. via TRL's PPOTrainer) brings it into single-GPU range.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Reward hacking is the classic RLHF failure: the model learns to game the reward model rather than improve. KL penalty mitigates but does not eliminate; reward-model overfitting is the underlying cause.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 10 ─────────────────────────── -->
+<section class="slide" id="slide-10">
+    <div class="slide-number">10</div>
+    <h2>DPO and Cousins</h2>
+    <p>Rafailov et al. (2023). Direct Preference Optimisation collapses the RLHF pipeline into a single supervised loss on preference pairs &mdash; no separate reward model, no PPO, no KL penalty as a separate term.</p>
+    <h3>The implicit reward</h3>
+    <p>DPO derives an analytical solution: the optimal policy under a Bradley-Terry reward model has a closed-form relationship between the policy log-probabilities and an implicit reward. The DPO loss directly optimises this without learning the reward function explicitly.</p>
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Method</th><th>What it adds over DPO</th></tr></thead>
+        <tbody>
+            <tr><td>IPO</td><td>Fixes preference saturation: when one option is overwhelmingly preferred, DPO over-optimises; IPO regularises.</td></tr>
+            <tr><td>KTO</td><td>Kahneman-Tversky loss. Works on unpaired data &mdash; just labels of "good" or "bad", no pairwise comparison needed.</td></tr>
+            <tr><td>ORPO</td><td>Reference-free. No KL term, no separate ref model copy. SFT and preference combined.</td></tr>
+            <tr><td>GRPO</td><td>Group-relative policy optimisation. Used in DeepSeek-R1 reasoning training. Compares groups of samples rather than pairs.</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p>For depth see <a href="https://github.com/BrendanJamesLynskey/FT_04_DPO_and_Cousins" style="color:var(--accent);">FT_04_DPO_and_Cousins</a>.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>NCP exam likely tests: (1) DPO removes the separate reward model, (2) ORPO removes the reference model, (3) GRPO operates on groups not pairs and is associated with reasoning models.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 11 ─────────────────────────── -->
+<section class="slide" id="slide-11">
+    <div class="slide-number">11</div>
+    <h2>Constitutional AI and RLAIF</h2>
+    <p>Bai et al. (2022). Anthropic's response to the human-labelling bottleneck. Replace human preference labels with AI-generated labels following a written constitution.</p>
+    <h3>Two-stage pipeline</h3>
+    <ol>
+        <li><strong>SL-CAI (supervised).</strong> Generate responses, ask the model to critique them against the constitution, ask it to revise. Train on the revisions.</li>
+        <li><strong>RL-CAI (reinforcement).</strong> Generate response pairs, ask the model to pick which better follows the constitution, train a preference model on those AI labels, run RLHF/DPO with the AI-labelled preferences.</li>
+    </ol>
+    <p>The constitution is the lever: a list of principles ("be helpful, be harmless, be honest, refuse to assist with X categories of request"). Editing the constitution updates the entire pipeline without re-collecting human labels.</p>
+    <h3>RLAIF</h3>
+    <p>Generalises CAI: any AI labeller, not necessarily one following a constitution. Often a stronger external model (e.g. Claude or GPT-4 labelling for a smaller open model). Cuts labelling cost ~10&times; vs human at comparable quality on many tasks.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Cert framing: CAI is the canonical reference, RLAIF is the generalisation. The "constitution" word is the recall hook.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 12 ─────────────────────────── -->
+<section class="slide" id="slide-12">
+    <div class="slide-number">12</div>
+    <h2>VRAM Budgeting &mdash; Worked Example</h2>
+    <h3>Full SFT memory</h3>
+    <p>Per parameter, BF16 SFT with AdamW: <strong>2 (weights) + 4 (gradient FP32) + 8 (optimiser state, two FP32 momenta) = 14 bytes</strong>, plus activations.</p>
+    <p>For a 7B model: 7B &times; 14 = 98 GB just for parameters/grads/optimiser. Activations on top. Single GPU: not feasible.</p>
+    <h3>LoRA memory</h3>
+    <p>Base model frozen in BF16 (2 bytes/param) + adapter in BF16 with optimiser state. For r=8, target Q+V on a 7B (32 layers, d=4096):</p>
+    <div class="code-block">
+        <div class="code-header">LoRA adapter param count</div>
+        <pre><code><span class="cm"># Per-layer Q+V LoRA params:</span>
+<span class="cm"># 2 matrices (Q, V) x 2 sub-matrices (A, B) x d * r</span>
+<span class="kw">params_per_layer</span> = 2 * 2 * 4096 * 8  <span class="cm"># = 131072</span>
+<span class="kw">total_layers</span> = 32
+<span class="kw">adapter_params</span> = 32 * 131072  <span class="cm"># = ~4.2M</span></code></pre>
+    </div>
+    <p>Adapter VRAM is dwarfed by the base. Total: <strong>~14 GB</strong> for 7B LoRA in BF16 &mdash; fits on RTX 4000 Ada (20 GB) with room for activations.</p>
+    <h3>QLoRA memory</h3>
+    <p>NF4 base = 0.5 bytes/param + adapter as above. For 7B: <strong>~5 GB</strong> for the model. Even on RTX 3080 (10 GB) feasible with gradient checkpointing.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The 14-bytes-per-param formula for full SFT is the most testable VRAM fact. The ratio between QLoRA and full FT is roughly 28&times; for the model itself, less for the optimiser state.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 13 ─────────────────────────── -->
+<section class="slide" id="slide-13">
+    <div class="slide-number">13</div>
+    <h2>Multi-LoRA Serving</h2>
+    <p>One base model, many adapters served concurrently. The serving question: do you merge each adapter into the base before serving, or keep them separate?</p>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Merged adapter</h4>
+            <p>Run <code>peft.merge_and_unload</code> &rarr; one specialised model. Same inference speed as the base. One copy of weights per adapter &mdash; cost scales with N.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Multi-LoRA inference</h4>
+            <p>Adapter applied at runtime per request. One copy of base weights, many small adapters. Frameworks: <strong>S-LoRA, Punica</strong>. Heterogeneous batching: different requests use different adapters in the same batch.</p>
+        </div>
+    </div>
+    <p><strong>S-LoRA</strong> (Sheng et al. 2023) demonstrates serving thousands of LoRA adapters on a single GPU with negligible overhead vs the base. Key trick: a custom CUDA kernel (Multi-rank Block-Group Multiplication) that handles variable-rank adapters in one batch.</p>
+    <p>TensorRT-LLM and vLLM both support multi-LoRA inference; the cert may probe the trade-off (merge for predictable latency, multi-LoRA for memory and tenant flexibility).</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The decision usually goes: small N (under ~10) and latency-critical &rarr; merge. Large N (hundreds-thousands) or multi-tenant &rarr; multi-LoRA.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 14 ─────────────────────────── -->
+<section class="slide" id="slide-14">
+    <div class="slide-number">14</div>
+    <h2>Tooling Landscape</h2>
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Tool</th><th>Strengths</th><th>Best for</th></tr></thead>
+        <tbody>
+            <tr><td>Axolotl</td><td>YAML configs, broad method coverage, HF-native</td><td>Reproducible runs across many methods</td></tr>
+            <tr><td>TRL (HF)</td><td>Trainer classes for SFT, DPO, PPO; integrates with HF stack</td><td>Pipeline-by-pipeline experimentation</td></tr>
+            <tr><td>Unsloth</td><td>Memory-optimised; fastest single-GPU SFT/LoRA</td><td>Resource-constrained training, prototyping</td></tr>
+            <tr><td>torchtune</td><td>PyTorch-native, recipe-driven, official Meta tool</td><td>Stay closer to PyTorch idioms</td></tr>
+            <tr><td>NeMo Framework / NeMo RL</td><td>NVIDIA's training stack, multi-node, BF16/FP8</td><td>Multi-node clusters, NVIDIA-native deployments</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p>For Brendan's hardware (single RTX 3080 or RTX 4000 Ada), Unsloth or TRL are the best entry points. For exam, recognise that NVIDIA's first-party tool is now <strong>NeMo RL</strong> (renamed from NeMo Aligner).</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Cert questions on tooling tend to be at the level "which NVIDIA component handles RLHF/DPO" &mdash; answer: NeMo RL.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 15 ─────────────────────────── -->
+<section class="slide" id="slide-15">
+    <div class="slide-number">15</div>
+    <h2>Likely Exam Angles</h2>
+    <ul>
+        <li><strong>VRAM math.</strong> Given a model size and a method (full FT / LoRA / QLoRA), pick the smallest GPU that fits. The 14-bytes-per-param formula is essential.</li>
+        <li><strong>LoRA hyperparameter trade-offs.</strong> What does increasing r do; what does the alpha/r ratio control; which target_modules give the best capacity-cost ratio.</li>
+        <li><strong>QLoRA mechanism.</strong> What does NF4 quantise (base, not adapter); double quantisation; why paged optimisers help.</li>
+        <li><strong>RLHF vs DPO.</strong> Which model copies are needed in each; what's eliminated by going to DPO; reward hacking failure mode.</li>
+        <li><strong>Constitutional AI.</strong> Two-stage pipeline; the role of the constitution; CAI vs RLAIF distinction.</li>
+        <li><strong>Multi-LoRA serving.</strong> Merge vs runtime adapter; when each wins; the S-LoRA contribution.</li>
+    </ul>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The VRAM question is the highest-stakes numerical-reasoning item in this domain. Practice it until it's reflex.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 16 ─────────────────────────── -->
+<section class="slide" id="slide-16">
+    <div class="slide-number">16</div>
+    <h2>Cross-References and Further Reading</h2>
+    <h3>Portfolio repos (depth treatment)</h3>
+    <ul>
+        <li><a href="https://github.com/BrendanJamesLynskey/FT_01_SFT_Pipeline" style="color:var(--accent);">FT_01_SFT_Pipeline</a> &mdash; chat templates, loss masking, sample packing, VRAM budgeting.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/FT_02_LoRA_and_PEFT_Variants" style="color:var(--accent);">FT_02_LoRA_and_PEFT_Variants</a> &mdash; LoRA math, QLoRA, DoRA, IA&sup3;, multi-LoRA serving.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/FT_03_RLHF_and_PPO" style="color:var(--accent);">FT_03_RLHF_and_PPO</a> &mdash; Bradley-Terry reward modelling, PPO, KL, reward hacking.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/FT_04_DPO_and_Cousins" style="color:var(--accent);">FT_04_DPO_and_Cousins</a> &mdash; DPO derivation, IPO, KTO, ORPO, GRPO.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/FT_05_Constitutional_AI_and_RLAIF" style="color:var(--accent);">FT_05_Constitutional_AI_and_RLAIF</a> &mdash; CAI two-stage pipeline, RLAIF.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Fine_Tuning" style="color:var(--accent);">LLM_Hub_Fine_Tuning</a> &mdash; hub overview.</li>
+    </ul>
+    <h3>Cert-prep repo resources</h3>
+    <ul>
+        <li><a href="../../notes/06_fine_tuning_and_peft.md" style="color:var(--accent);">notes/06_fine_tuning_and_peft.md</a> &mdash; the notes this deck is built from.</li>
+        <li><a href="../../exercises/03_lora_finetune_minimal/" style="color:var(--accent);">exercises/03_lora_finetune_minimal/</a> &mdash; hands-on LoRA on Qwen2.5-0.5B.</li>
+    </ul>
+    <h3>Primary literature</h3>
+    <ul>
+        <li>Hu et al. (2021), LoRA: <a href="https://arxiv.org/abs/2106.09685" style="color:var(--accent);">arxiv.org/abs/2106.09685</a></li>
+        <li>Dettmers et al. (2023), QLoRA: <a href="https://arxiv.org/abs/2305.14314" style="color:var(--accent);">arxiv.org/abs/2305.14314</a></li>
+        <li>Liu et al. (2024), DoRA: <a href="https://arxiv.org/abs/2402.09353" style="color:var(--accent);">arxiv.org/abs/2402.09353</a></li>
+        <li>Rafailov et al. (2023), DPO: <a href="https://arxiv.org/abs/2305.18290" style="color:var(--accent);">arxiv.org/abs/2305.18290</a></li>
+        <li>Bai et al. (2022), Constitutional AI: <a href="https://arxiv.org/abs/2212.08073" style="color:var(--accent);">arxiv.org/abs/2212.08073</a></li>
+    </ul>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Cite paper authors and years for the cert &mdash; it signals you know the canonical reference even if specific page numbers aren't tested.</p>
+    </aside>
+</section>
+
+<footer class="footer">
+    <p>
+        <a href="https://github.com/BrendanJamesLynskey/NVIDIA_GenAI_LLMs_Cert_Prep">NVIDIA GenAI LLMs Cert Prep</a>
+        &nbsp;&mdash;&nbsp;
+        <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Fine_Tuning">LLM_Hub_Fine_Tuning</a>
+        &nbsp;&mdash;&nbsp;
+        <a href="https://github.com/BrendanJamesLynskey/FT_02_LoRA_and_PEFT_Variants">FT_02_LoRA_and_PEFT_Variants</a>
+    </p>
+    <p style="margin-top:0.75rem;">NVIDIA GenAI Cert Prep &mdash; Presentation 03 of 05</p>
+</footer>
+
 </body>
 </html>

@@ -1,10 +1,671 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Nvidia Stack Overview — Stub</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The NVIDIA AI Stack — NVIDIA GenAI Cert Prep</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #0d1117;
+            --bg-code: #161b22;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #76B900;
+            --accent-dim: #76B90044;
+            --accent-glow: #76B90033;
+            --border: #21262d;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); font-size: 17px; line-height: 1.7; overflow-x: hidden; }
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem; text-align: center; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+        .hero > * { position: relative; z-index: 1; }
+        .series-label { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; }
+        .hero h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; color: var(--text-primary); line-height: 1.2; margin-bottom: 1rem; }
+        .hero h1 .accent { color: var(--accent); }
+        .hero .subtitle { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin-bottom: 2rem; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2.5rem; }
+        .tag { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); background: var(--accent-dim); white-space: nowrap; }
+        .pipeline { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.25rem; margin-bottom: 1rem; max-width: var(--max-width); }
+        .pipeline-step { font-family: var(--font-mono); font-size: 0.7rem; padding: 0.3rem 0.7rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; color: var(--text-secondary); white-space: nowrap; }
+        .pipeline-arrow { color: var(--accent); font-size: 0.9rem; font-weight: 700; }
+        .slide { min-height: 100vh; max-width: var(--max-width); margin: 0 auto; padding: 4rem 1.5rem; position: relative; display: flex; flex-direction: column; justify-content: center; }
+        .slide-number { font-family: var(--font-display); font-size: 5rem; font-weight: 700; color: var(--accent-dim); position: absolute; top: 2rem; right: 1.5rem; line-height: 1; user-select: none; }
+        .slide h2 { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; color: var(--accent); margin-bottom: 1.5rem; line-height: 1.25; }
+        .slide h3 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; color: var(--text-primary); margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .slide p { margin-bottom: 1rem; color: var(--text-secondary); }
+        .slide p strong { color: var(--text-primary); }
+        .slide ul, .slide ol { margin-bottom: 1rem; padding-left: 1.5rem; color: var(--text-secondary); }
+        .slide li { margin-bottom: 0.4rem; }
+        .slide li strong { color: var(--text-primary); }
+        .code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; margin: 1.25rem 0; overflow: hidden; }
+        .code-header { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); background: rgba(118, 185, 0, 0.08); padding: 0.4rem 1rem; border-bottom: 1px solid var(--border); }
+        .code-block pre { margin: 0; padding: 1rem; overflow-x: auto; }
+        .code-block code { font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #c9d1d9; }
+        .table-wrap { overflow-x: auto; margin: 1.25rem 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { background: var(--bg-code); color: var(--accent); font-weight: 600; text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); font-family: var(--font-display); white-space: nowrap; }
+        td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background: rgba(13, 17, 23, 0.5); }
+        .diagram-grid { display: grid; gap: 0.75rem; margin: 1.5rem 0; padding: 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; }
+        .diagram-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .diagram-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .diagram-panel { padding: 1rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 6px; }
+        .diagram-panel.accent-border { border-left: 3px solid var(--accent); }
+        .diagram-panel h4 { font-family: var(--font-display); font-size: 1rem; color: var(--accent); margin-bottom: 0.5rem; }
+        .diagram-panel p, .diagram-panel ul { font-size: 0.85rem; }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin: 1.25rem 0; }
+        .callout p { margin-bottom: 0; }
+        .callout .callout-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem; }
+        .contents-list { list-style: none; padding-left: 0; counter-reset: contents; }
+        .contents-list li { counter-increment: contents; padding: 0.6rem 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+        .contents-list li:last-child { border-bottom: none; }
+        .contents-list li::before { content: counter(contents, decimal-leading-zero); font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); min-width: 2rem; }
+        .contents-list a { color: var(--text-primary); text-decoration: none; transition: color 0.2s; }
+        .contents-list a:hover { color: var(--accent); }
+        .footer { text-align: center; padding: 3rem 1.5rem; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border); max-width: var(--max-width); margin: 0 auto; }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .canvas-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin: 1.25rem 0; overflow-x: auto; }
+        .canvas-wrap svg { display: block; margin: 0 auto; max-width: 100%; }
+        .notes-toggle { position: fixed; top: 1rem; right: 1rem; z-index: 999; font-family: var(--font-mono); font-size: 0.75rem; padding: 0.35rem 0.8rem; background: var(--bg-card); border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; cursor: pointer; }
+        .notes-toggle:hover { background: var(--accent-dim); }
+        .speaker-notes { display: none; background: rgba(118, 185, 0, 0.04); border: 1px solid var(--accent-dim); border-radius: 8px; padding: 1rem 1.25rem; margin-top: 2rem; font-size: 0.85rem; color: var(--text-secondary); }
+        .speaker-notes .notes-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+        body.notes-visible .speaker-notes { display: block; }
+        @media (max-width: 640px) {
+            .slide { padding: 3rem 1rem; min-height: auto; }
+            .slide-number { font-size: 3rem; top: 1.5rem; right: 1rem; }
+            .slide h2 { font-size: 1.5rem; }
+            .diagram-grid.cols-2, .diagram-grid.cols-3 { grid-template-columns: 1fr; }
+            .pipeline { gap: 0.15rem; }
+            .pipeline-step { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
+            .hero h1 { font-size: 1.8rem; }
+            table { font-size: 0.78rem; }
+        }
+    </style>
 </head>
 <body>
-<p>Stub — Phase 6 fills this.</p>
+
+<button class="notes-toggle" onclick="document.body.classList.toggle('notes-visible')">Speaker Notes</button>
+
+<header class="hero">
+    <div class="series-label">NVIDIA GenAI Cert Prep &mdash; Presentation 05</div>
+    <h1>The <span class="accent">NVIDIA</span> AI Stack</h1>
+    <p class="subtitle">From driver and CUDA toolkit up to NIM microservices and Base Command. The cert-stake highest deck for the NCP exam &mdash; what each NVIDIA component does, where it sits in the stack, and when you reach for it.</p>
+
+    <div class="tags">
+        <span class="tag">NCP GPU Acceleration 14%</span>
+        <span class="tag">NCP Deployment 9%</span>
+        <span class="tag">NCP Production 7%</span>
+        <span class="tag">NeMo</span>
+        <span class="tag">TensorRT-LLM</span>
+        <span class="tag">Triton</span>
+        <span class="tag">NIM</span>
+    </div>
+
+    <div class="pipeline">
+        <span class="pipeline-step">Driver / CUDA</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Libraries</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Frameworks</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Runtime</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Microservices</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Orchestration</span>
+    </div>
+</header>
+
+<!-- ─────────────────────────── SLIDE 00 ─────────────────────────── -->
+<section class="slide" id="slide-00">
+    <div class="slide-number">00</div>
+    <h2>Topics in This Deck</h2>
+    <p>A cert-focused tour of the NVIDIA AI software stack. Three NCP domains touch this material; together they're roughly 30% of the Professional exam.</p>
+    <ul class="contents-list">
+        <li><a href="#slide-01">Cert Framing</a></li>
+        <li><a href="#slide-02">The Stack at a Glance</a></li>
+        <li><a href="#slide-03">CUDA, Driver, cuDNN, cuBLAS</a></li>
+        <li><a href="#slide-04">NCCL</a></li>
+        <li><a href="#slide-05">CUTLASS</a></li>
+        <li><a href="#slide-06">NeMo Framework</a></li>
+        <li><a href="#slide-07">NeMo RL (formerly NeMo Aligner)</a></li>
+        <li><a href="#slide-08">NeMo Curator, Guardrails, Evaluator, Run</a></li>
+        <li><a href="#slide-09">TensorRT vs TensorRT-LLM</a></li>
+        <li><a href="#slide-10">Triton Inference Server</a></li>
+        <li><a href="#slide-11">Triton + TRT-LLM Relationship</a></li>
+        <li><a href="#slide-12">NIM &mdash; Inference Microservices</a></li>
+        <li><a href="#slide-13">Base Command, Run.ai, DGX Cloud</a></li>
+        <li><a href="#slide-14">NVIDIA AI Enterprise</a></li>
+        <li><a href="#slide-15">RAPIDS</a></li>
+        <li><a href="#slide-16">Nsight Systems vs Compute</a></li>
+        <li><a href="#slide-17">MIG, MPS, vGPU</a></li>
+        <li><a href="#slide-18">Decision Matrix</a></li>
+        <li><a href="#slide-19">NGC Container Catalogue</a></li>
+        <li><a href="#slide-20">Likely Exam Angles</a></li>
+        <li><a href="#slide-21">Cross-References</a></li>
+    </ul>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>This deck is mostly recall: which component does what, when to reach for which. Memorise the stack diagram and the decision matrix &mdash; the rest follows from those two.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 01 ─────────────────────────── -->
+<section class="slide" id="slide-01">
+    <div class="slide-number">01</div>
+    <h2>Cert Framing</h2>
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel accent-border">
+            <h4>GPU Acceleration</h4>
+            <p style="font-family:var(--font-mono);font-size:1.2rem;color:var(--accent);">14%</p>
+            <p style="font-size:0.8rem;">CUDA stack, libraries, multi-GPU primitives, profiling tools.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Model Deployment</h4>
+            <p style="font-family:var(--font-mono);font-size:1.2rem;color:var(--accent);">9%</p>
+            <p style="font-size:0.8rem;">Triton, NIM, TensorRT-LLM, container packaging, gRPC/HTTP serving.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Production</h4>
+            <p style="font-family:var(--font-mono);font-size:1.2rem;color:var(--accent);">7%</p>
+            <p style="font-size:0.8rem;">Monitoring with DCGM, AI Enterprise, Run.ai orchestration.</p>
+        </div>
+    </div>
+    <p>Combined: <strong>30% of NCP</strong>. The single highest-leverage deck for that exam by domain weight.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The exams treat NVIDIA-specific knowledge as the differentiator from a generic LLM-engineering certification. Get this deck wrong and the score drops more than any other.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 02 ─────────────────────────── -->
+<section class="slide" id="slide-02">
+    <div class="slide-number">02</div>
+    <h2>The Stack at a Glance</h2>
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 820 360" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+            <rect width="820" height="360" fill="#0d1117" rx="8"/>
+            <rect x="40" y="20"  width="740" height="36" rx="4" fill="#161b22" stroke="#21262d"/>
+            <text x="410" y="44" fill="#8b949e" font-size="13" text-anchor="middle">Hardware &mdash; GPU + NVLink + InfiniBand</text>
+            <rect x="40" y="64"  width="740" height="36" rx="4" fill="#161b22" stroke="#21262d"/>
+            <text x="410" y="88" fill="#8b949e" font-size="13" text-anchor="middle">Driver / CUDA Toolkit</text>
+            <rect x="40" y="108" width="740" height="36" rx="4" fill="#161b22" stroke="#21262d"/>
+            <text x="410" y="132" fill="#8b949e" font-size="13" text-anchor="middle">cuDNN &middot; cuBLAS &middot; NCCL &middot; CUTLASS &middot; cuSPARSE</text>
+            <rect x="40" y="152" width="360" height="60" rx="4" fill="#161b22" stroke="#76B900"/>
+            <text x="220" y="175" fill="#76B900" font-size="13" text-anchor="middle">NeMo Framework</text>
+            <text x="220" y="195" fill="#8b949e" font-size="10" text-anchor="middle">Pretraining, SFT, RL, Curator, Guardrails</text>
+            <rect x="420" y="152" width="360" height="60" rx="4" fill="#161b22" stroke="#76B900"/>
+            <text x="600" y="175" fill="#76B900" font-size="13" text-anchor="middle">TensorRT &middot; TensorRT-LLM</text>
+            <text x="600" y="195" fill="#8b949e" font-size="10" text-anchor="middle">Engine builder, IFB, paged KV, FP8/FP4</text>
+            <rect x="40" y="220" width="740" height="44" rx="4" fill="#161b22" stroke="#76B900"/>
+            <text x="410" y="246" fill="#76B900" font-size="13" text-anchor="middle">Triton Inference Server</text>
+            <rect x="40" y="272" width="740" height="44" rx="4" fill="#161b22" stroke="#76B900"/>
+            <text x="410" y="298" fill="#76B900" font-size="13" text-anchor="middle">NIM &mdash; Pre-packaged inference microservices</text>
+            <rect x="40" y="324" width="740" height="28" rx="4" fill="#161b22" stroke="#21262d"/>
+            <text x="410" y="343" fill="#8b949e" font-size="12" text-anchor="middle">Base Command &middot; Run.ai &middot; DGX Cloud (orchestration)</text>
+        </svg>
+    </div>
+    <p>Read bottom-up at deployment time, top-down at training time. The libraries layer (cuDNN, cuBLAS, NCCL, CUTLASS) is shared by everything above.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The stack diagram is the single most useful artefact for cert revision. Everything else slots into one of these layers.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 03 ─────────────────────────── -->
+<section class="slide" id="slide-03">
+    <div class="slide-number">03</div>
+    <h2>CUDA, Driver, cuDNN, cuBLAS</h2>
+    <h3>CUDA Toolkit</h3>
+    <p>NVIDIA's C/C++ programming model and runtime for GPUs. As of April 2026 the current major is <strong>CUDA 13.x</strong>. The Toolkit ships <code>nvcc</code> (compiler), runtime libraries, and headers.</p>
+    <h3>Driver compatibility</h3>
+    <p>The driver and toolkit version pair is the most common deployment failure mode. Modern CUDA toolkit versions require a minimum driver branch (e.g. CUDA 13.x against driver R580+ or later, depending on point release). Verify with <code>nvidia-smi</code> against the toolkit's <code>nvcc --version</code>.</p>
+    <h3>cuDNN</h3>
+    <p>NVIDIA's deep learning primitives library &mdash; convolutions, activations, normalisation, RNN cells. Used by PyTorch and TensorFlow under the hood.</p>
+    <h3>cuBLAS</h3>
+    <p>BLAS for the GPU. Matrix multiplies and basic linear algebra. Underpins all transformer attention and FFN computations.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The exam may probe the library layering: cuBLAS is the GEMM workhorse, cuDNN is the higher-level NN primitives. CUTLASS sits alongside cuBLAS for custom GEMM patterns.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 04 ─────────────────────────── -->
+<section class="slide" id="slide-04">
+    <div class="slide-number">04</div>
+    <h2>NCCL &mdash; Collective Communications</h2>
+    <p>NVIDIA Collective Communications Library. The mandatory layer for any multi-GPU training or inference.</p>
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Collective</th><th>What it does</th><th>Where used</th></tr></thead>
+        <tbody>
+            <tr><td><code>all-reduce</code></td><td>Sum gradients across all GPUs; result on every GPU</td><td>Data parallelism gradient sync</td></tr>
+            <tr><td><code>all-gather</code></td><td>Concatenate tensors from all GPUs onto every GPU</td><td>FSDP/ZeRO param all-gather</td></tr>
+            <tr><td><code>reduce-scatter</code></td><td>Sum and split tensor across GPUs</td><td>FSDP gradient reduce-scatter</td></tr>
+            <tr><td><code>broadcast</code></td><td>Send tensor from one GPU to all others</td><td>Init / loading checkpoints</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p>NCCL uses NVLink within a node and InfiniBand (or Ethernet) across nodes. Performance depends on both bandwidth and latency: large all-reduces are bandwidth-bound, small ones are latency-bound. SHARP (Scalable Hierarchical Aggregation Reduction Protocol) on Quantum InfiniBand offloads parts of the reduction to the network switch.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>NCCL is opaque to most users (PyTorch DDP/FSDP wrap it), but the cert may test which collective each parallelism strategy uses.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 05 ─────────────────────────── -->
+<section class="slide" id="slide-05">
+    <div class="slide-number">05</div>
+    <h2>CUTLASS</h2>
+    <p>CUDA Templates for Linear Algebra Subroutines. Open-source C++ template library for writing custom GEMM kernels. The building blocks for FlashAttention, custom MoE kernels, and one-off optimisations where cuBLAS doesn't fit.</p>
+    <p>Why it matters at the cert level: CUTLASS is what lets framework authors hand-tune the matmul + epilogue + activation fusion that cuBLAS won't do for them. FlashAttention v2 and v3 are written using CUTLASS-style abstractions.</p>
+    <div class="callout">
+        <div class="callout-label">When you'd reach for it</div>
+        <p>You're optimising a kernel that cuBLAS can't fuse with the surrounding ops, and you need explicit control over tensor-core instructions (HMMA on Volta-Ampere, WGMMA on Hopper, the equivalents on Blackwell).</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Outside the cert, CUTLASS is a deep rabbit hole. For exam purposes: it's NVIDIA's open-source template library for custom GEMMs.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 06 ─────────────────────────── -->
+<section class="slide" id="slide-06">
+    <div class="slide-number">06</div>
+    <h2>NeMo Framework</h2>
+    <p>NVIDIA's end-to-end framework for generative AI training and customisation. Container images on NGC (currently the 26.x line). Built on PyTorch with NVIDIA-specific accelerations &mdash; Megatron-Core for parallelism, Apex for fused ops, Transformer Engine for FP8.</p>
+    <h3>What sits inside</h3>
+    <ul>
+        <li><strong>Megatron-Core</strong> &mdash; the tensor/pipeline/sequence parallelism engine. The training scaffolding for trillion-parameter models.</li>
+        <li><strong>Transformer Engine</strong> &mdash; FP8 numerics on Hopper, MX-FP4 on Blackwell. The Hopper Transformer Engine paper figures (~2x speedup vs FP16) come from this.</li>
+        <li><strong>NeMo Aligner</strong> &mdash; renamed to <strong>NeMo RL</strong> (see next slide).</li>
+        <li><strong>NeMo Curator, NeMo Guardrails, NeMo Evaluator, NeMo Run</strong> &mdash; sub-projects, see slide 08.</li>
+    </ul>
+    <p>NeMo runs on a single GPU up to multi-node clusters with the same code path; multi-node requires NCCL + InfiniBand and is configured via Megatron-Core options.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>NeMo's distinguishing feature vs Hugging Face Transformers is parallelism: Megatron-Core does TP/PP/SP/CP at scales HF Trainer does not. For single-GPU 7B work, Hugging Face is fine; for 70B+ multi-node, NeMo is the path.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 07 ─────────────────────────── -->
+<section class="slide" id="slide-07">
+    <div class="slide-number">07</div>
+    <h2>NeMo RL (Formerly NeMo Aligner)</h2>
+    <p>NVIDIA's reinforcement learning and preference-tuning library. Renamed from <strong>NeMo Aligner</strong> to <strong>NeMo RL</strong> in the recent NeMo Framework releases (the wider rebrand reflects that the library does more than alignment alone).</p>
+    <h3>What it covers</h3>
+    <ul>
+        <li><strong>RLHF</strong> &mdash; full PPO loop with reward model, reference model, KL penalty.</li>
+        <li><strong>DPO</strong> and variants &mdash; reference-based and reference-free.</li>
+        <li><strong>GRPO</strong> &mdash; group-relative policy optimisation, used in DeepSeek-R1-style reasoning training.</li>
+        <li><strong>Constitutional AI / RLAIF</strong> &mdash; AI labellers replacing humans in the preference pipeline.</li>
+    </ul>
+    <div class="callout">
+        <div class="callout-label">Cert recall hook</div>
+        <p>"Which NVIDIA component does RLHF / DPO?" &rarr; <strong>NeMo RL</strong> (formerly NeMo Aligner). Distractors will use the old name to test whether you've kept up.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The rename happened recently; older NVIDIA blog posts still reference NeMo Aligner. Exam-fresh material will use NeMo RL.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 08 ─────────────────────────── -->
+<section class="slide" id="slide-08">
+    <div class="slide-number">08</div>
+    <h2>NeMo Curator, Guardrails, Evaluator, Run</h2>
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Component</th><th>Purpose</th><th>When to reach for it</th></tr></thead>
+        <tbody>
+            <tr><td><strong>NeMo Curator</strong></td><td>GPU-accelerated data preprocessing &mdash; deduplication, quality filtering, decontamination</td><td>Building a custom pretraining or SFT corpus at scale</td></tr>
+            <tr><td><strong>NeMo Guardrails</strong></td><td>Programmable safety rails between user and LLM &mdash; topical, dialogue, fact-checking, jailbreak detection</td><td>Production deployment that needs deterministic safety controls beyond model RLHF</td></tr>
+            <tr><td><strong>NeMo Evaluator</strong></td><td>Eval orchestration &mdash; benchmark runs, custom metrics, LLM-as-judge</td><td>Standardising eval pipelines across models or releases</td></tr>
+            <tr><td><strong>NeMo Run</strong></td><td>Experiment orchestrator &mdash; config-driven launch on local, Slurm, or cloud backends</td><td>Reproducible multi-config runs</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p>Each of Guardrails, Curator, Evaluator, and Run can be used independently of the wider NeMo Framework &mdash; they're separately published packages.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>NeMo Guardrails in particular is often confused with output-only filters &mdash; it's a runtime layer that can also intercept input and dialogue state, not just final outputs.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 09 ─────────────────────────── -->
+<section class="slide" id="slide-09">
+    <div class="slide-number">09</div>
+    <h2>TensorRT vs TensorRT-LLM</h2>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>TensorRT</h4>
+            <p>General-purpose inference compiler. Takes ONNX/PyTorch/TF models, applies layer fusion, kernel auto-tuning, and precision conversion. Used for vision, classical ML, smaller transformers.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>TensorRT-LLM</h4>
+            <p>LLM-specific inference engine on top of TensorRT primitives. Adds in-flight (continuous) batching, paged KV-cache, FP8/FP4 quantisation, speculative decoding (draft, Medusa, EAGLE), tensor/pipeline/expert parallelism.</p>
+        </div>
+    </div>
+    <h3>The relationship</h3>
+    <p>TRT-LLM uses TRT under the hood for the kernel-level work but adds a specialised Python and C++ runtime that knows about LLM-specific structures the generic TRT runtime doesn't &mdash; KV cache, request scheduling, multi-LoRA. For LLMs, you reach for TRT-LLM.</p>
+    <p>Depth: <a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_19_TensorRT_LLM" style="color:var(--accent);">NVIDIA_GPU_19_TensorRT_LLM</a>.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>For non-LLM transformers (small encoder-decoder, vision models), generic TRT can be enough and is simpler. For any decoder-only LLM in production, TRT-LLM is the answer.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 10 ─────────────────────────── -->
+<section class="slide" id="slide-10">
+    <div class="slide-number">10</div>
+    <h2>Triton Inference Server</h2>
+    <p>Open-source model server. The serving runtime, not the optimisation engine. Triton's job: take many model artefacts (TRT engines, ONNX, PyTorch, TF, Python custom backends), expose them via gRPC and HTTP, batch requests, route them to the right backend.</p>
+    <h3>Features that matter for the cert</h3>
+    <ul>
+        <li><strong>Multi-backend</strong> &mdash; one server can host TRT, ONNX-Runtime, PyTorch, custom Python.</li>
+        <li><strong>Dynamic batching</strong> &mdash; combines incoming requests up to <code>max_batch_size</code> and a queue delay budget.</li>
+        <li><strong>Model ensembling</strong> &mdash; Triton can chain models (e.g. tokeniser &rarr; LLM &rarr; detokeniser) inside the server.</li>
+        <li><strong>Metrics</strong> &mdash; Prometheus endpoint on port 8002; integrates with DCGM for GPU telemetry.</li>
+        <li><strong>Health endpoints</strong> &mdash; <code>/v2/health/ready</code> for orchestrator probing.</li>
+    </ul>
+    <p>Hands-on: <a href="../../exercises/04_triton_serving_demo/" style="color:var(--accent);">exercises/04_triton_serving_demo/</a>.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The most-tested Triton concept is the model repository layout: <code>model_repository/&lt;model&gt;/&lt;version&gt;/model.&lt;ext&gt;</code> with a <code>config.pbtxt</code> at the model root.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 11 ─────────────────────────── -->
+<section class="slide" id="slide-11">
+    <div class="slide-number">11</div>
+    <h2>Triton + TRT-LLM Relationship</h2>
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 820 220" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+            <rect width="820" height="220" fill="#0d1117" rx="8"/>
+            <rect x="40"  y="30"  width="160" height="160" rx="6" fill="#161b22" stroke="#76B900"/>
+            <text x="120" y="60"  fill="#76B900" font-size="13" text-anchor="middle">Triton</text>
+            <text x="120" y="80"  fill="#8b949e" font-size="10" text-anchor="middle">gRPC / HTTP</text>
+            <text x="120" y="100" fill="#8b949e" font-size="10" text-anchor="middle">Dynamic batch</text>
+            <text x="120" y="120" fill="#8b949e" font-size="10" text-anchor="middle">Metrics</text>
+            <text x="120" y="140" fill="#8b949e" font-size="10" text-anchor="middle">Routing</text>
+            <line x1="200" y1="110" x2="240" y2="110" stroke="#76B900" stroke-width="2"/>
+            <rect x="240" y="30"  width="240" height="160" rx="6" fill="#161b22" stroke="#21262d"/>
+            <text x="360" y="60"  fill="#e6edf3" font-size="13" text-anchor="middle">TRT-LLM Backend</text>
+            <text x="360" y="80"  fill="#8b949e" font-size="10" text-anchor="middle">In-flight batching</text>
+            <text x="360" y="100" fill="#8b949e" font-size="10" text-anchor="middle">Paged KV cache</text>
+            <text x="360" y="120" fill="#8b949e" font-size="10" text-anchor="middle">Speculative decoding</text>
+            <text x="360" y="140" fill="#8b949e" font-size="10" text-anchor="middle">TP / PP / EP</text>
+            <line x1="480" y1="110" x2="520" y2="110" stroke="#76B900" stroke-width="2"/>
+            <rect x="520" y="30"  width="240" height="160" rx="6" fill="#161b22" stroke="#21262d"/>
+            <text x="640" y="60"  fill="#e6edf3" font-size="13" text-anchor="middle">TRT-LLM Engine</text>
+            <text x="640" y="80"  fill="#8b949e" font-size="10" text-anchor="middle">Compiled .engine file</text>
+            <text x="640" y="100" fill="#8b949e" font-size="10" text-anchor="middle">FP8 / FP4 / INT4</text>
+            <text x="640" y="120" fill="#8b949e" font-size="10" text-anchor="middle">Tensor cores</text>
+            <text x="640" y="140" fill="#8b949e" font-size="10" text-anchor="middle">Optimised kernels</text>
+        </svg>
+    </div>
+    <p>The reusable mental model: <strong>Triton is the server, TRT-LLM is one backend, the engine file is the compiled artefact</strong>. NIM (next slide) packages all three plus a model into a microservice container.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The exam tests whether you keep these three layers distinct. Triton without TRT-LLM still works (e.g. with ONNX or vLLM-Triton backend); TRT-LLM without Triton is also valid (Python runtime). The combination is the production-typical path.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 12 ─────────────────────────── -->
+<section class="slide" id="slide-12">
+    <div class="slide-number">12</div>
+    <h2>NIM &mdash; Inference Microservices</h2>
+    <p>NVIDIA Inference Microservices. Pre-packaged container images on NGC, one per model + precision combination. Each NIM bundles:</p>
+    <ul>
+        <li>A pre-built TensorRT-LLM engine (or other backend)</li>
+        <li>Triton Inference Server</li>
+        <li>An OpenAI-compatible REST API plus gRPC</li>
+        <li>Deployment configuration tuned per GPU family</li>
+    </ul>
+    <p>Run a NIM with <code>docker run nvcr.io/nim/&lt;publisher&gt;/&lt;model&gt;:&lt;tag&gt;</code> and you have a production-ready endpoint. The trade-off vs building your own engine: less control, less tuning headroom, but predictable performance.</p>
+    <div class="callout">
+        <div class="callout-label">Where NIM fits in the stack</div>
+        <p>NIM is the layer above Triton+TRT-LLM that hides their composition behind a single deployable artefact. Cert framing: NIM is "production deployment without engine-building".</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Cert may probe whether you understand the licensing: NIM containers require an NVIDIA AI Enterprise subscription for production use; free for development.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 13 ─────────────────────────── -->
+<section class="slide" id="slide-13">
+    <div class="slide-number">13</div>
+    <h2>Base Command, Run.ai, DGX Cloud</h2>
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Component</th><th>What it does</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Base Command</strong></td><td>Job orchestration for DGX systems &mdash; submit/monitor training jobs, manage datasets, track experiments. The DGX-native scheduler.</td></tr>
+            <tr><td><strong>Run.ai</strong></td><td>NVIDIA-acquired Kubernetes-native GPU orchestration. Fractional GPUs, fair sharing, multi-tenant scheduling, gang scheduling.</td></tr>
+            <tr><td><strong>DGX Cloud</strong></td><td>Hosted access to DGX clusters via NVIDIA's partner clouds (AWS, Azure, GCP, OCI). Reserve capacity, run NeMo workloads, no on-prem hardware.</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p>Brendan's local hardware (RTX 3080, RTX 4000 Ada) gives no direct access to any of these &mdash; this slide is exam-knowledge only. The cert may ask: "Which NVIDIA component schedules training jobs on DGX SuperPOD?" &rarr; Base Command. "Which integrates with Kubernetes for fractional GPU sharing?" &rarr; Run.ai.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Run.ai was acquired by NVIDIA in 2024 and is now the strategic Kubernetes-native orchestrator. Distinguishing it from MIG/MPS (hardware-level GPU partitioning) is testable.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 14 ─────────────────────────── -->
+<section class="slide" id="slide-14">
+    <div class="slide-number">14</div>
+    <h2>NVIDIA AI Enterprise</h2>
+    <p>The licensed software bundle. Not a single product &mdash; a subscription that includes:</p>
+    <ul>
+        <li>Production-supported builds of NeMo, Triton, TensorRT-LLM, NIM, Riva (speech), Morpheus (cybersecurity), Maxine (audio/video).</li>
+        <li>Validated container images via NGC.</li>
+        <li>Enterprise support contracts, hotfixes, security patches.</li>
+        <li>Integration with VMware, Red Hat OpenShift, major cloud providers.</li>
+    </ul>
+    <div class="callout">
+        <div class="callout-label">When it matters</div>
+        <p>Enterprise customers running NIM in production need AI Enterprise. Open-source equivalents (NeMo, Triton, vLLM) are free to use without subscription &mdash; the licence covers the validated/supported builds and SLAs, not the technology itself.</p>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The exam may test what's in the bundle vs what's outside. NIM production use requires AI Enterprise; vLLM does not (different vendor). NeMo is open-source but the validated containers and support are AI Enterprise.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 15 ─────────────────────────── -->
+<section class="slide" id="slide-15">
+    <div class="slide-number">15</div>
+    <h2>RAPIDS</h2>
+    <p>Open-source GPU-accelerated data science suite. Drop-in replacements for pandas (<strong>cuDF</strong>), scikit-learn (<strong>cuML</strong>), NetworkX (<strong>cuGraph</strong>), and geospatial workflows (<strong>cuSpatial</strong>).</p>
+    <h3>How it fits LLM work</h3>
+    <ul>
+        <li><strong>Data preparation</strong> &mdash; cuDF for fast tabular preprocessing of training datasets.</li>
+        <li><strong>Vector search</strong> &mdash; cuVS provides GPU-accelerated approximate-nearest-neighbour for RAG, beating CPU HNSW at scale.</li>
+        <li><strong>Embedding clustering</strong> &mdash; cuML for k-means / DBSCAN at scale on GPU.</li>
+    </ul>
+    <p>Lighter cert weight than NeMo/Triton/TRT-LLM, but mentioning RAPIDS in a data-prep answer demonstrates you know the wider stack.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>cuVS (CUDA Vector Search) is the LLM-relevant RAPIDS component for the cert &mdash; vector indexes for RAG.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 16 ─────────────────────────── -->
+<section class="slide" id="slide-16">
+    <div class="slide-number">16</div>
+    <h2>Nsight Systems vs Compute</h2>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Nsight Systems</h4>
+            <p><strong>System-wide</strong> profiling. CPU, GPU, NCCL, CUDA streams, OS scheduling. Timeline view across processes. Used to find where time goes at the application level.</p>
+            <p style="font-size:0.8rem;font-family:var(--font-mono);">"Why is this training step slow?"</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Nsight Compute</h4>
+            <p><strong>Kernel-level</strong> profiling. Per-kernel SM utilisation, memory access patterns, occupancy, instruction mix, roofline analysis. Used to optimise individual CUDA kernels.</p>
+            <p style="font-size:0.8rem;font-family:var(--font-mono);">"Why is this kernel achieving only 40% peak FLOPs?"</p>
+        </div>
+    </div>
+    <p>The standard workflow: start with Nsight Systems to find the bottleneck step or kernel. Then drop into Nsight Compute for that specific kernel. NVTX annotations in your code mark regions for the timeline.</p>
+    <p>Other tools: <strong>DCGM</strong> for production telemetry (Prometheus exporter), <strong>nvbandwidth</strong> for memory benchmarks, <strong>CUPTI</strong> as the underlying profiling API.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The Systems-vs-Compute distinction is cert recall &mdash; system-wide vs kernel-level. Distractors often swap them.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 17 ─────────────────────────── -->
+<section class="slide" id="slide-17">
+    <div class="slide-number">17</div>
+    <h2>MIG, MPS, vGPU</h2>
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Mechanism</th><th>Isolation</th><th>Where supported</th><th>Use case</th></tr></thead>
+        <tbody>
+            <tr><td><strong>MIG</strong></td><td>Hardware-partitioned (separate SMs, L2, memory)</td><td>A100, H100, H200, Blackwell datacentre</td><td>Strict multi-tenancy, predictable QoS</td></tr>
+            <tr><td><strong>MPS</strong></td><td>Software multiplexing on shared GPU</td><td>All NVIDIA GPUs</td><td>Higher utilisation, no strict isolation</td></tr>
+            <tr><td><strong>vGPU</strong></td><td>Hypervisor-mediated; licence required</td><td>Workstation cards (RTX A/Ada, L40S) and datacentre</td><td>VDI, virtualised desktops</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p>For Brendan's hardware, neither MIG (RTX 3080 and RTX 4000 Ada don't support MIG) nor vGPU (no licence) applies. MPS is available but rarely useful for single-user workstations.</p>
+    <p>Depth: <a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_18_GPU_Sharing_MIG_MPS_vGPU" style="color:var(--accent);">NVIDIA_GPU_18_GPU_Sharing_MIG_MPS_vGPU</a>.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>MIG isolation is hardware (SM partitions are physically separate); MPS is software (shared SMs, scheduled). The cert often probes which gives strict QoS guarantees &mdash; answer: MIG.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 18 ─────────────────────────── -->
+<section class="slide" id="slide-18">
+    <div class="slide-number">18</div>
+    <h2>Decision Matrix</h2>
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>I want to...</th><th>Reach for...</th></tr></thead>
+        <tbody>
+            <tr><td>Pretrain or full-FT a large model on multi-GPU</td><td>NeMo Framework (Megatron-Core)</td></tr>
+            <tr><td>Run RLHF, DPO, or Constitutional AI</td><td>NeMo RL (formerly NeMo Aligner)</td></tr>
+            <tr><td>Build a custom LLM dataset at scale</td><td>NeMo Curator</td></tr>
+            <tr><td>Add runtime safety controls to a deployed LLM</td><td>NeMo Guardrails</td></tr>
+            <tr><td>Compile a high-throughput LLM inference engine</td><td>TensorRT-LLM</td></tr>
+            <tr><td>Serve compiled engines with HTTP/gRPC and batching</td><td>Triton Inference Server</td></tr>
+            <tr><td>Deploy a pre-tuned production-ready endpoint</td><td>NIM</td></tr>
+            <tr><td>Schedule jobs on a Kubernetes GPU cluster</td><td>Run.ai</td></tr>
+            <tr><td>Schedule jobs on a DGX SuperPOD</td><td>Base Command</td></tr>
+            <tr><td>Profile a slow training step at system level</td><td>Nsight Systems</td></tr>
+            <tr><td>Profile a slow CUDA kernel</td><td>Nsight Compute</td></tr>
+            <tr><td>Partition a single A100/H100 across tenants</td><td>MIG</td></tr>
+            <tr><td>GPU-accelerate pandas / scikit-learn workflows</td><td>RAPIDS (cuDF / cuML)</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>This matrix is the highest-yield revision artefact in the deck. Drill it until the "I want to / reach for" mapping is reflex.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 19 ─────────────────────────── -->
+<section class="slide" id="slide-19">
+    <div class="slide-number">19</div>
+    <h2>NGC Container Catalogue</h2>
+    <p>NVIDIA GPU Cloud catalogue at <a href="https://catalog.ngc.nvidia.com/" style="color:var(--accent);">catalog.ngc.nvidia.com</a>. The canonical source for NVIDIA-published containers.</p>
+    <h3>What you'll pull</h3>
+    <ul>
+        <li><code>nvcr.io/nvidia/tritonserver:&lt;tag&gt;</code> &mdash; Triton releases. Tag pattern <code>YY.MM-py3</code> (monthly).</li>
+        <li><code>nvcr.io/nvidia/tensorrt:&lt;tag&gt;</code> &mdash; TensorRT toolkit container.</li>
+        <li><code>nvcr.io/nvidia/tensorrt_llm:&lt;tag&gt;</code> or <code>trt_llm_backend</code> &mdash; TensorRT-LLM. Driver requirements per release.</li>
+        <li><code>nvcr.io/nvidia/nemo:&lt;tag&gt;</code> &mdash; NeMo Framework (currently the 26.x line as of April 2026).</li>
+        <li><code>nvcr.io/nim/&lt;publisher&gt;/&lt;model&gt;:&lt;tag&gt;</code> &mdash; NIM microservices.</li>
+    </ul>
+    <p>Always pin tags. <code>latest</code> changes underneath you and breaks reproducibility.</p>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>The exam may ask about the registry hostname (<code>nvcr.io</code>) or the typical naming convention. Driver compatibility is the main practical pitfall.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 20 ─────────────────────────── -->
+<section class="slide" id="slide-20">
+    <div class="slide-number">20</div>
+    <h2>Likely Exam Angles</h2>
+    <ul>
+        <li><strong>Stack layering.</strong> Given a task description, identify the right NVIDIA layer (driver/library/framework/runtime/microservice).</li>
+        <li><strong>NeMo RL rename.</strong> Recognise NeMo Aligner is now NeMo RL; both names may appear in distractors.</li>
+        <li><strong>Triton vs TRT-LLM vs engine file.</strong> The three-layer mental model. Don't conflate them.</li>
+        <li><strong>NIM bundling.</strong> What's inside a NIM container; licensing implications.</li>
+        <li><strong>NCCL collectives.</strong> Which collective each parallelism strategy uses.</li>
+        <li><strong>MIG vs MPS vs vGPU.</strong> Hardware vs software isolation; supported GPU families.</li>
+        <li><strong>Nsight Systems vs Compute.</strong> System-wide vs kernel-level.</li>
+        <li><strong>Run.ai vs Base Command.</strong> Kubernetes-native vs DGX-native scheduler.</li>
+    </ul>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>Most NCP questions in this domain are recall-flavoured rather than calculation-flavoured. The decision matrix on slide 18 covers most of them.</p>
+    </aside>
+</section>
+
+<!-- ─────────────────────────── SLIDE 21 ─────────────────────────── -->
+<section class="slide" id="slide-21">
+    <div class="slide-number">21</div>
+    <h2>Cross-References and Further Reading</h2>
+    <h3>Portfolio repos (depth treatment)</h3>
+    <ul>
+        <li><a href="https://github.com/BrendanJamesLynskey/LLM_Hub_NVIDIA_GPUs" style="color:var(--accent);">LLM_Hub_NVIDIA_GPUs</a> &mdash; index of 37 GPU/architecture presentations.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_19_TensorRT_LLM" style="color:var(--accent);">NVIDIA_GPU_19_TensorRT_LLM</a> &mdash; engine builder, IFB, paged KV, FP8/FP4.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_20_NeMo_NIM_AI_Enterprise" style="color:var(--accent);">NVIDIA_GPU_20_NeMo_NIM_AI_Enterprise</a> &mdash; the NeMo and NIM stack in detail.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_17_Profiling_and_Debug" style="color:var(--accent);">NVIDIA_GPU_17_Profiling_and_Debug</a> &mdash; Nsight Systems / Compute / NVTX / DCGM workflow.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_18_GPU_Sharing_MIG_MPS_vGPU" style="color:var(--accent);">NVIDIA_GPU_18_GPU_Sharing_MIG_MPS_vGPU</a> &mdash; GPU sharing trade-offs.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/LLM_Hub_CUDA" style="color:var(--accent);">LLM_Hub_CUDA</a> &mdash; CUDA programming series.</li>
+        <li><a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Local_LLM_Hosting" style="color:var(--accent);">LLM_Hub_Local_LLM_Hosting</a> &mdash; vLLM, TGI, SGLang, llama.cpp, Ollama.</li>
+    </ul>
+    <h3>Cert-prep repo resources</h3>
+    <ul>
+        <li><a href="../../notes/10_nvidia_software_stack.md" style="color:var(--accent);">notes/10_nvidia_software_stack.md</a> &mdash; the notes this deck is built from.</li>
+        <li><a href="../../cheatsheets/nvidia_stack_one_pager.md" style="color:var(--accent);">cheatsheets/nvidia_stack_one_pager.md</a> &mdash; printable one-pager.</li>
+        <li><a href="../../exercises/04_triton_serving_demo/" style="color:var(--accent);">exercises/04_triton_serving_demo/</a> &mdash; hands-on Triton.</li>
+        <li><a href="../../exercises/05_tensorrt_llm_quantisation/" style="color:var(--accent);">exercises/05_tensorrt_llm_quantisation/</a> &mdash; TRT-LLM walkthrough.</li>
+    </ul>
+    <h3>Official documentation</h3>
+    <ul>
+        <li>NeMo Framework: <a href="https://docs.nvidia.com/nemo-framework/" style="color:var(--accent);">docs.nvidia.com/nemo-framework</a></li>
+        <li>Triton Inference Server: <a href="https://github.com/triton-inference-server/server" style="color:var(--accent);">github.com/triton-inference-server/server</a></li>
+        <li>TensorRT-LLM: <a href="https://github.com/NVIDIA/TensorRT-LLM" style="color:var(--accent);">github.com/NVIDIA/TensorRT-LLM</a></li>
+        <li>NGC: <a href="https://catalog.ngc.nvidia.com/" style="color:var(--accent);">catalog.ngc.nvidia.com</a></li>
+    </ul>
+    <aside class="speaker-notes">
+        <div class="notes-label">Speaker Notes</div>
+        <p>NVIDIA's documentation is the authoritative source for all of these. Cert questions reference the official names verbatim &mdash; check spelling and current nomenclature against docs.nvidia.com when there's any doubt.</p>
+    </aside>
+</section>
+
+<footer class="footer">
+    <p>
+        <a href="https://github.com/BrendanJamesLynskey/NVIDIA_GenAI_LLMs_Cert_Prep">NVIDIA GenAI LLMs Cert Prep</a>
+        &nbsp;&mdash;&nbsp;
+        <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_NVIDIA_GPUs">LLM_Hub_NVIDIA_GPUs</a>
+        &nbsp;&mdash;&nbsp;
+        <a href="https://github.com/BrendanJamesLynskey/NVIDIA_GPU_20_NeMo_NIM_AI_Enterprise">NVIDIA_GPU_20_NeMo_NIM_AI_Enterprise</a>
+    </p>
+    <p style="margin-top:0.75rem;">NVIDIA GenAI Cert Prep &mdash; Presentation 05 of 05</p>
+</footer>
+
 </body>
 </html>
