@@ -2,6 +2,8 @@
 
 Study and interview-prep portfolio for NVIDIA's two generative-AI LLM credentials: NCA-GENL (Associate) and NCP-GENL (Professional). The repo exists primarily for Brendan's own exam preparation — it is public because the structure and cross-references may be useful to anyone studying for the same exams.
 
+**Live site:** https://brendanjameslynskey.github.io/NVIDIA_GenAI_LLMs_Cert_Prep/ — landing page with links to the five HTML decks, the syllabus, the study plan, and the mock-exam banks.
+
 The value-add here is the cert-specific synthesis: syllabus mapping, exercises tied to official domain weightings, mock-question batches, and a structured study plan. Topics already covered in depth by existing repos in the portfolio are cross-referenced rather than re-derived.
 
 ---
