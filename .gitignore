@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+# Editors
+.vscode/
+.idea/
+*.swp
+.DS_Store
+# Notebooks
+.ipynb_checkpoints/
+# Build artefacts
+dist/
+build/
+*.egg-info/
+# Models / weights / data dumps (large, never commit)
+*.bin
+*.safetensors
+*.gguf
+*.pt
+*.pth
+checkpoints/
+data/cache/
