@@ -1,0 +1,17 @@
+# Host-side requirements for exercise 05 (TensorRT-LLM quantisation walkthrough).
+#
+# These run on the host Python environment (outside the Docker container).
+# The TensorRT-LLM library itself is NOT installed here — it runs inside
+# the nvcr.io/nvidia/trt_llm_backend container.
+#
+# These packages support:
+#   - baseline_hf.py   (BF16 Hugging Face reference run)
+#   - huggingface-cli  (model download)
+
+torch>=2.2.0
+torchvision>=0.17.0
+transformers>=4.44.0
+accelerate>=0.30.0
+huggingface_hub>=0.23.0
+sentencepiece>=0.1.99
+protobuf>=4.25.0

@@ -1,0 +1,56 @@
+# Triton model configuration for ResNet-18 ONNX
+#
+# Platform: onnxruntime_onnx
+#   Triton routes this model to the ONNX Runtime backend.
+#   Triton will use the GPU execution provider when a CUDA device is available;
+#   it falls back to CPU automatically (useful for debugging without a GPU).
+#
+# max_batch_size: 32
+#   Triton can coalesce up to 32 requests into a single forward pass via
+#   dynamic batching.  Set to 0 to disable batching entirely.
+#
+# Input: "input"
+#   NCHW float32 tensor, batch dim is -1 (dynamic).
+#   224×224 is the standard ImageNet preprocessing size.
+#
+# Output: "output"
+#   1000-class logit vector.  Apply softmax in the client if probabilities
+#   are needed; raw logits are sufficient for argmax classification.
+#
+# dynamic_batching:
+#   preferred_batch_size — Triton tries to fill these sizes before dispatch.
+#   max_queue_delay_microseconds — maximum wait before dispatching a
+#   sub-preferred batch.  500 µs is a reasonable default for interactive demos;
+#   increase to 5000–20000 µs in throughput-optimised production deployments.
+
+name: "resnet18_onnx"
+platform: "onnxruntime_onnx"
+max_batch_size: 32
+
+input [
+  {
+    name: "input"
+    data_type: TYPE_FP32
+    dims: [ 3, 224, 224 ]
+  }
+]
+
+output [
+  {
+    name: "output"
+    data_type: TYPE_FP32
+    dims: [ 1000 ]
+  }
+]
+
+dynamic_batching {
+  preferred_batch_size: [ 4, 8, 16 ]
+  max_queue_delay_microseconds: 500
+}
+
+instance_group [
+  {
+    kind: KIND_GPU
+    count: 1
+  }
+]

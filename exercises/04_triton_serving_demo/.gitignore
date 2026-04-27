@@ -1,0 +1,9 @@
+# Exclude ONNX model binaries from git.
+# Run prepare_model.py to generate model_repository/resnet18_onnx/1/model.onnx
+model_repository/**/*.onnx
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/

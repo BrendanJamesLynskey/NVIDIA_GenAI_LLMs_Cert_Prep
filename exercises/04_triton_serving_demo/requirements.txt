@@ -1,0 +1,12 @@
+# Host-side requirements for exercise 04 (Triton serving demo).
+# These run outside the Docker container — on the host Python environment.
+#
+# tritonclient[all] includes both the gRPC and HTTP client libraries,
+# plus the shared memory utilities.  If you only want the gRPC client:
+#   pip install tritonclient[grpc]
+
+tritonclient[all]>=2.43.0
+numpy>=1.24.0
+torch>=2.2.0
+torchvision>=0.17.0
+onnx>=1.16.0

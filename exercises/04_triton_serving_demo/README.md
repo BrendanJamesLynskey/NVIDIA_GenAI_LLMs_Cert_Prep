@@ -1,3 +1,261 @@
-# 04 — Triton Inference Server Demo
+# Exercise 04 — Triton Inference Server Demo
 
-Docker-compose Triton deployment serving a small model, with a client smoke test. Stub — Phase 4 fills this.
+End-to-end walkthrough: bring up NVIDIA Triton Inference Server with a small ONNX classifier, send a request from a Python client, and read the metrics endpoint. Runs on either RTX 3080 (10 GB) or RTX 4000 Ada (20 GB).
+
+---
+
+## Prerequisites
+
+| Dependency | Minimum version | Notes |
+|---|---|---|
+| NVIDIA GPU driver | 550+ | `nvidia-smi` to verify |
+| NVIDIA Container Toolkit | 1.14+ | Provides GPU passthrough into Docker |
+| Docker Engine | 24+ | With Compose v2 (`docker compose`) |
+| Python | 3.10+ | For client and prepare scripts, run outside the container |
+
+Install NVIDIA Container Toolkit if not present:
+
+```bash
+# Ubuntu / Debian
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+  | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
+  | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
+  | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+sudo apt update && sudo apt install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+```
+
+Verify:
+
+```bash
+docker run --rm --gpus all nvidia/cuda:12.6.0-base-ubuntu22.04 nvidia-smi
+```
+
+---
+
+## Where Triton fits in the stack
+
+The NVIDIA software stack runs from silicon upward (full detail in [notes/10_nvidia_software_stack.md](../../notes/10_nvidia_software_stack.md)):
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Your application / client.py                                │
+├──────────────────────────────────────────────────────────────┤
+│  Triton Inference Server  ← this exercise                    │
+│  (HTTP :8000, gRPC :8001, metrics :8002)                     │
+├──────────────────────────────────────────────────────────────┤
+│  Backend: ONNX Runtime (this demo)                           │
+│  Alt backends: TensorRT engine, TensorRT-LLM, PyTorch, …    │
+├──────────────────────────────────────────────────────────────┤
+│  CUDA libraries: cuDNN, cuBLAS                               │
+├──────────────────────────────────────────────────────────────┤
+│  CUDA Toolkit + GPU driver                                   │
+├──────────────────────────────────────────────────────────────┤
+│  GPU hardware (RTX 3080 / RTX 4000 Ada)                      │
+└──────────────────────────────────────────────────────────────┘
+```
+
+Triton is the **serving layer** — it is not an optimisation engine. It hosts one or more backends and provides a uniform gRPC / HTTP API to clients. TensorRT-LLM is one of its backends; ONNX Runtime (used here) is another. See [notes/10_nvidia_software_stack.md](../../notes/10_nvidia_software_stack.md) for the full component map.
+
+---
+
+## Model choice
+
+This demo uses **ResNet-18** (ImageNet classifier) exported as an ONNX file via `torchvision`. ResNet-18 is a good teaching model because:
+
+- the ONNX export is deterministic and well-understood,
+- the ONNX file is small (~45 MB),
+- the input/output shapes are fixed and easy to reason about.
+
+`prepare_model.py` downloads the pretrained weights and exports the ONNX on first run. The binary is excluded from git (see `.gitignore`).
+
+---
+
+## Setup
+
+### 1. Install Python dependencies (host, outside Docker)
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Export the ONNX model
+
+```bash
+python prepare_model.py
+```
+
+This places the file at `model_repository/resnet18_onnx/1/model.onnx`.
+
+### 3. Start Triton
+
+```bash
+docker compose up -d
+```
+
+Triton will load the model repository on startup. Watch the logs until you see `Started GRPCInferenceService at 0.0.0.0:8001`:
+
+```bash
+docker compose logs -f triton
+```
+
+### 4. Run the client
+
+```bash
+python client.py
+```
+
+Expected output (values are illustrative — actual class probabilities depend on the sample image):
+
+```
+Triton server: localhost:8001
+Model: resnet18_onnx  version: 1  state: READY
+Sent input shape: (1, 3, 224, 224)  dtype: FP32
+Top-5 classes: [258, 259, 261, 157, 260]  (ImageNet indices)
+Round-trip latency: 4.2 ms
+```
+
+### 5. Tear down
+
+```bash
+docker compose down
+```
+
+Alternatively, run the full automated flow:
+
+```bash
+bash smoke_test.sh
+```
+
+---
+
+## Repository layout
+
+```
+04_triton_serving_demo/
+├── README.md                    ← this file
+├── docker-compose.yml           ← Triton service definition
+├── requirements.txt             ← host Python dependencies
+├── prepare_model.py             ← exports ResNet-18 ONNX
+├── client.py                    ← Python inference client
+├── smoke_test.sh                ← end-to-end automated test
+├── .gitignore                   ← excludes *.onnx binaries
+└── model_repository/
+    └── resnet18_onnx/
+        ├── config.pbtxt         ← Triton model configuration
+        └── 1/
+            └── model.onnx       ← generated by prepare_model.py (gitignored)
+```
+
+### Model repository convention
+
+Triton requires a specific directory structure:
+
+```
+model_repository/
+└── <model_name>/
+    ├── config.pbtxt      ← required: describes platform, shapes, batching
+    └── <version>/        ← integer directory (1, 2, …) — Triton serves highest by default
+        └── model.onnx    ← the model artefact (name depends on backend)
+```
+
+Multiple versions can coexist. The `config.pbtxt` specifies which versions are available; clients can request a specific version or accept the default (latest).
+
+---
+
+## Request / response flow
+
+1. Client creates a `numpy` array of shape `(batch, 3, 224, 224)` (NCHW, FP32).
+2. Client serialises it as a Triton `InferInput` and issues a gRPC `ModelInfer` RPC to `:8001`.
+3. Triton validates the input against `config.pbtxt`, routes the request to the ONNX Runtime backend.
+4. ONNX Runtime runs the forward pass on the GPU.
+5. Triton wraps the output tensor `(batch, 1000)` (ImageNet logits) as an `InferOutput` and returns it.
+6. Client deserialises the response, applies `argmax`, prints top-5 class indices.
+
+Dynamic batching is enabled in `config.pbtxt`: if multiple requests arrive within the `max_queue_delay_microseconds` window, Triton coalesces them into a single GPU forward pass. For a single-client demo this will rarely trigger, but the setting is present to show the configuration path.
+
+---
+
+## Metrics endpoint
+
+While the server is running:
+
+```bash
+# Prometheus-format metrics
+curl -s http://localhost:8002/metrics | grep nv_inference
+```
+
+Key metrics to look for:
+
+| Metric | Meaning |
+|---|---|
+| `nv_inference_request_success` | Cumulative successful inferences |
+| `nv_inference_queue_duration_us` | Time requests spend in the batching queue |
+| `nv_inference_compute_infer_duration_us` | Time spent in the backend (GPU compute) |
+| `nv_gpu_utilization` | GPU utilisation % |
+| `nv_gpu_memory_used_bytes` | GPU memory consumed |
+
+---
+
+## Dynamic batching
+
+Dynamic batching is configured in `config.pbtxt` under the `dynamic_batching` stanza. The key parameters are:
+
+- `preferred_batch_size` — Triton will try to fill batches of these sizes. If fewer requests are available, it waits up to `max_queue_delay_microseconds` before dispatching.
+- `max_queue_delay_microseconds` — maximum wait time. Increasing this improves throughput at the cost of latency.
+
+For production LLM serving, TensorRT-LLM's in-flight batching (a finer-grained form of continuous batching) is used instead — see [notes/08_inference_optimisation.md](../../notes/08_inference_optimisation.md).
+
+---
+
+## Common pitfalls
+
+### GPU passthrough: `gpus: all` vs CDI
+
+`docker-compose.yml` uses `deploy.resources.reservations.device_requests` with `driver: nvidia, count: all`. This is the Compose v2 canonical form and requires NVIDIA Container Toolkit to be configured with the Docker runtime (confirmed by `sudo nvidia-ctk runtime configure --runtime=docker`).
+
+The CDI (Container Device Interface) path (`--device nvidia.com/gpu=all`) is an alternative for Podman and newer container runtimes. It is not used here because Triton's official containers are documented against the Docker + NVIDIA Container Toolkit path.
+
+### Model directory permissions
+
+Triton inside the container runs as a non-root user. The `model_repository/` volume mount must be readable by the container's user. If Triton fails to load the model with a permissions error, run:
+
+```bash
+chmod -R 755 model_repository/
+```
+
+### Port collisions
+
+Triton uses ports 8000 (HTTP), 8001 (gRPC), and 8002 (metrics). If any of these are occupied on the host, change the left-hand side of the port mapping in `docker-compose.yml` (e.g., `"18000:8000"`), and update `client.py` to match.
+
+### model.onnx not present
+
+`docker compose up` will succeed but Triton will mark the model as `UNAVAILABLE`. Always run `prepare_model.py` before `docker compose up`. The smoke test (`smoke_test.sh`) checks for this file and exits early if it is missing.
+
+### CUDA out of memory on the RTX 3080
+
+ResNet-18 uses negligible VRAM. If you switch to a larger ONNX model, check available VRAM with `nvidia-smi` before starting. Triton does not pre-allocate VRAM; it allocates on first inference.
+
+---
+
+## Learning objectives
+
+After completing this exercise you should be able to:
+
+- Explain the role of Triton in the NVIDIA stack (serving layer, not optimisation engine).
+- Describe the model repository directory convention and `config.pbtxt` fields.
+- Trace a request from client to GPU backend and back.
+- Read inference throughput and latency from the Prometheus metrics endpoint.
+- Explain dynamic batching and when it helps.
+- Identify the CDI vs `gpus: all` distinction and which environments each suits.
+
+---
+
+## Cross-references
+
+- [notes/10_nvidia_software_stack.md](../../notes/10_nvidia_software_stack.md) — full stack diagram, Triton component boundaries, TensorRT-LLM as a backend.
+- [notes/08_inference_optimisation.md](../../notes/08_inference_optimisation.md) — dynamic batching, in-flight batching, KV cache quantisation.
+- [Exercise 05](../05_tensorrt_llm_quantisation/README.md) — TensorRT-LLM engine build and quantisation, which feeds into Triton's TensorRT-LLM backend.
+- [NVIDIA\_GPU\_19\_TensorRT\_LLM](https://github.com/BrendanJamesLynskey/NVIDIA_GPU_19_TensorRT_LLM) — TensorRT-LLM depth.

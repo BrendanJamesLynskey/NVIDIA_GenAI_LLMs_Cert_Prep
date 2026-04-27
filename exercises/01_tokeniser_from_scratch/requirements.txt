@@ -1,0 +1,5 @@
+pytest==8.3.5
+# Optional: install the `tokenizers` library to cross-check BPE behaviour
+# against Hugging Face's Rust-backed implementation.  Not required for the
+# core exercise; remove the comment and uncomment the line below to enable.
+# tokenizers==0.21.1

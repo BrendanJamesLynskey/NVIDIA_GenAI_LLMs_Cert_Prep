@@ -1,0 +1,23 @@
+# Model checkpoints and engine binaries are large and should not be committed.
+# Download/build them locally using the steps in README.md.
+
+# Hugging Face model checkpoints
+models/*/
+
+# Quantised TRT-LLM checkpoints
+models/*-checkpoint/
+
+# Compiled TRT-LLM engine files
+engines/*/
+
+# Keep placeholder files so the directories are tracked
+!models/.gitkeep
+!engines/.gitkeep
+
+# Host Python venv
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/

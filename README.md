@@ -72,6 +72,11 @@ Exercises requiring TensorRT-LLM or Triton are Docker-based and have been smoke-
 | --- | --- |
 | [notes/](notes/) | Per-domain topic notes — one file per NCA/NCP domain area |
 | [exercises/](exercises/) | Hands-on coding exercises matched to domain weightings |
+| [exercises/01_tokeniser_from_scratch/](exercises/01_tokeniser_from_scratch/) | BPE tokeniser implemented from scratch in pure Python — train, encode, decode, round-trip tests |
+| [exercises/02_attention_from_scratch/](exercises/02_attention_from_scratch/) | Scaled dot-product and multi-head attention in NumPy and PyTorch, with correctness checks against `torch.nn.functional` |
+| [exercises/03_lora_finetune_minimal/](exercises/03_lora_finetune_minimal/) | End-to-end LoRA fine-tune on Qwen2.5-0.5B-Instruct — adapter training, inference, and smoke test |
+| [exercises/04_triton_serving_demo/](exercises/04_triton_serving_demo/) | Docker-compose Triton Inference Server demo — ONNX model, Python client, metrics walkthrough |
+| [exercises/05_tensorrt_llm_quantisation/](exercises/05_tensorrt_llm_quantisation/) | TensorRT-LLM engine build walkthrough — FP8 (RTX 4000 Ada) and INT8/INT4 (RTX 3080) quantisation |
 | [mock\_interviews/](mock_interviews/) | Mock question banks for NCA-GENL and NCP-GENL, plus system-design and behavioural sets |
 | [cheatsheets/](cheatsheets/) | Concise one-pager cheatsheets — transformer maths, quantisation, sampling, NVIDIA stack |
 | [presentations/](presentations/) | Slide decks for five key topic areas |

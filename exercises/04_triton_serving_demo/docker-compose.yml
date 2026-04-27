@@ -1,0 +1,50 @@
+# NOTE: written but not hardware-verified — smoke-test before use
+#
+# Triton Inference Server — single-GPU serving demo.
+# Container tag: nvcr.io/nvidia/tritonserver:25.03-py3
+# (Triton v2.54.0 / NGC 25.03, released March 2025 — pin this, do not use :latest)
+#
+# Ports:
+#   8000 — HTTP/REST inference API  (KFServing v2 protocol)
+#   8001 — gRPC inference API       (preferred for low-latency clients)
+#   8002 — Prometheus metrics endpoint
+#
+# Volume:
+#   ./model_repository is mounted read-only at /models inside the container.
+#   Run prepare_model.py on the host before starting this service.
+
+services:
+  triton:
+    image: nvcr.io/nvidia/tritonserver:25.03-py3
+    container_name: triton-demo
+    command: >
+      tritonserver
+      --model-repository=/models
+      --log-verbose=1
+      --strict-model-config=false
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+    volumes:
+      - ./model_repository:/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sf",
+          "http://localhost:8000/v2/health/ready"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: "no"

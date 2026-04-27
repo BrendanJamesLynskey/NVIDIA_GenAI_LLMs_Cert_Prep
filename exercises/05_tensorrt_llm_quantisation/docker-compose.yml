@@ -1,0 +1,49 @@
+# NOTE: written but not hardware-verified — smoke-test before use
+#
+# TensorRT-LLM interactive container for engine build and inference.
+#
+# Container tag: nvcr.io/nvidia/trt_llm_backend:24.12-trtllm-v0.16.0
+#   Bundles: TensorRT-LLM v0.16.0, CUDA 12.6, Python 3.10
+#   Requires GPU driver >= 560 on the host.
+#
+# Alternative (TensorRT-LLM v1.2.1, CUDA 12.8, driver >= 570):
+#   image: nvcr.io/nvidia/tensorrt_llm:1.2.1-py3
+#   Verify driver compatibility before switching.
+#
+# Usage:
+#   docker compose run --rm trtllm bash
+#   (starts an interactive shell inside the container)
+#
+# Volume mounts:
+#   ./models   → /workspace/models   (HF checkpoints, quantised checkpoints)
+#   ./engines  → /workspace/engines  (compiled .engine files)
+#   ./scripts  → /workspace/scripts  (build_engine.sh, run_inference.py)
+#
+# NOTE: This service is intentionally interactive — there is no CMD.
+# It is not designed to run `docker compose up` in daemon mode.
+
+services:
+  trtllm:
+    image: nvcr.io/nvidia/trt_llm_backend:24.12-trtllm-v0.16.0
+    container_name: trtllm-build
+    stdin_open: true
+    tty: true
+    working_dir: /workspace
+    volumes:
+      - ./models:/workspace/models
+      - ./engines:/workspace/engines
+      - ./scripts:/workspace/scripts
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    # ipc: host allows shared memory access across processes inside the container,
+    # required for some TensorRT-LLM multi-process configurations.
+    ipc: host
+    # ulimits for large model tensors and shared memory buffers
+    ulimits:
+      memlock: -1
+      stack: 67108864
