@@ -9,15 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-card: #0d1117;
-            --bg-code: #161b22;
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --accent: #76B900;
-            --accent-dim: #76B90044;
-            --accent-glow: #76B90033;
-            --border: #21262d;
+            --bg-primary: #1b1b1a;
+            --bg-card: #212120;
+            --bg-code: #292928;
+            --text-primary: #edede7;
+            --text-secondary: #9b9b95;
+            --accent: #b8b315;
+            --accent-dim: #b8b31544;
+            --accent-glow: #b8b31533;
+            --border: #363633;
             --font-display: 'Space Grotesk', sans-serif;
             --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
             --font-body: 'Inter', sans-serif;
@@ -162,7 +162,7 @@
             font-family: var(--font-mono);
             font-size: 0.75rem;
             color: var(--accent);
-            background: rgba(118, 185, 0, 0.08);
+            background: rgba(184,179,21,0.08);
             padding: 0.4rem 1rem;
             border-bottom: 1px solid var(--border);
         }
@@ -171,15 +171,15 @@
             font-family: var(--font-mono);
             font-size: 0.85rem;
             line-height: 1.6;
-            color: #c9d1d9;
+            color: #d5d5cf;
         }
-        .kw { color: #ff7b72; }
-        .fn { color: #d2a8ff; }
-        .str { color: #a5d6ff; }
-        .cm { color: #8b949e; font-style: italic; }
-        .num { color: #79c0ff; }
-        .type { color: #ffa657; }
-        .dir { color: #ff7b72; }
+        .kw { color: #e57d63; }
+        .fn { color: #d1c2e1; }
+        .str { color: #c9dbe2; }
+        .cm { color: #9b9b95; font-style: italic; }
+        .num { color: #afcbd8; }
+        .type { color: #e0b172; }
+        .dir { color: #e57d63; }
         .table-wrap {
             overflow-x: auto;
             margin: 1.25rem 0;
@@ -199,7 +199,7 @@
         }
         td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
         tr:last-child td { border-bottom: none; }
-        tr:nth-child(even) td { background: rgba(13, 17, 23, 0.5); }
+        tr:nth-child(even) td { background: rgba(33,33,32,0.5); }
         td strong { color: var(--text-primary); }
         .diagram-flow {
             display: flex; flex-wrap: wrap;
@@ -225,7 +225,7 @@
         .diagram-box.accent {
             border-color: var(--accent);
             color: var(--accent);
-            background: rgba(118, 185, 0, 0.08);
+            background: rgba(184,179,21,0.08);
         }
         .diagram-box.dim { color: var(--text-secondary); border-color: var(--border); }
         .diagram-arrow { color: var(--accent); font-size: 1.3rem; font-weight: 700; }
@@ -362,8 +362,8 @@
             margin-left: 0.3rem;
         }
         .badge.ok  { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-        .badge.warn { border-color: #ffa657; color: #ffa657; background: rgba(255,166,87,0.08); }
-        .badge.bad  { border-color: #ff7b72; color: #ff7b72; background: rgba(255,123,114,0.08); }
+        .badge.warn { border-color: #e0b172; color: #e0b172; background: rgba(224,177,114,0.08); }
+        .badge.bad  { border-color: #e57d63; color: #e57d63; background: rgba(229,125,99,0.08); }
         .notes-toggle {
             position: fixed;
             top: 1rem; right: 1rem;
@@ -382,7 +382,7 @@
         .notes-toggle.active { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
         .speaker-notes {
             display: none;
-            background: rgba(118,185,0,0.05);
+            background: rgba(184,179,21,0.05);
             border: 1px dashed var(--accent);
             border-radius: 8px;
             padding: 1rem 1.25rem;
@@ -510,14 +510,14 @@
         <svg viewBox="0 0 700 300" width="700" height="300" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <style>
-                    .t-lbl { fill:#8b949e; font-family:'JetBrains Mono',monospace; font-size:11px; }
-                    .t-hdr { fill:#e6edf3; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; }
-                    .t-acc { fill:#76B900; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; }
-                    .t-body { fill:#8b949e; font-family:'Inter',sans-serif; font-size:10px; }
+                    .t-lbl { fill:#9b9b95; font-family:'JetBrains Mono',monospace; font-size:11px; }
+                    .t-hdr { fill:#edede7; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; }
+                    .t-acc { fill:#b8b315; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; }
+                    .t-body { fill:#9b9b95; font-family:'Inter',sans-serif; font-size:10px; }
                 </style>
             </defs>
             <!-- triangle fill -->
-            <polygon points="350,18 70,270 630,270" fill="rgba(118,185,0,0.05)" stroke="#76B900" stroke-width="1.5"/>
+            <polygon points="350,18 70,270 630,270" fill="rgba(184,179,21,0.05)" stroke="#b8b315" stroke-width="1.5"/>
             <!-- vertex: Throughput (top) -->
             <text x="350" y="13" class="t-acc" text-anchor="middle">THROUGHPUT</text>
             <text x="350" y="26" class="t-lbl" text-anchor="middle">tok/s across all requests; large batches; high arithmetic intensity</text>
@@ -600,13 +600,13 @@ Total: 30 GB &mdash; exceeds RTX 4000 Ada 20 GB without optimisation.</code></pr
         <svg viewBox="0 0 700 340" width="700" height="340" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <style>
-                    .ax  { stroke:#21262d; stroke-width:1; }
-                    .gl  { stroke:#21262d; stroke-width:0.5; stroke-dasharray:3 3; }
-                    .sl  { fill:#8b949e; font-family:'JetBrains Mono',monospace; font-size:10px; }
-                    .ln1 { fill:none; stroke:#76B900; stroke-width:2.5; }
-                    .ln2 { fill:none; stroke:#ffa657; stroke-width:2; stroke-dasharray:8 4; }
-                    .ln3 { fill:none; stroke:#a5d6ff; stroke-width:2; stroke-dasharray:4 4; }
-                    .wfill{ fill:rgba(118,185,0,0.12); }
+                    .ax  { stroke:#363633; stroke-width:1; }
+                    .gl  { stroke:#363633; stroke-width:0.5; stroke-dasharray:3 3; }
+                    .sl  { fill:#9b9b95; font-family:'JetBrains Mono',monospace; font-size:10px; }
+                    .ln1 { fill:none; stroke:#b8b315; stroke-width:2.5; }
+                    .ln2 { fill:none; stroke:#e0b172; stroke-width:2; stroke-dasharray:8 4; }
+                    .ln3 { fill:none; stroke:#c9dbe2; stroke-width:2; stroke-dasharray:4 4; }
+                    .wfill{ fill:rgba(184,179,21,0.12); }
                 </style>
             </defs>
             <!-- axes -->
@@ -637,7 +637,7 @@ Total: 30 GB &mdash; exceeds RTX 4000 Ada 20 GB without optimisation.</code></pr
             <text x="68" y="281" class="sl" text-anchor="end">0</text>
             <!-- Weight band: 7B FP16 ~14 GB = 278 - 14*(258/34) = 278 - 106 = 172px -->
             <rect x="75" y="165" width="585" height="13" class="wfill"/>
-            <text x="655" y="174" class="sl" text-anchor="end" style="fill:#76B900;font-size:9px">~14 GB 7B weights FP16</text>
+            <text x="655" y="174" class="sl" text-anchor="end" style="fill:#b8b315;font-size:9px">~14 GB 7B weights FP16</text>
             <!-- KV FP16, 32 KV heads:
                  at seq s: bytes = 2*32*32*128*s*2 = 536870912*s
                  per token: 524288 bytes = 0.5 MB
@@ -655,11 +655,11 @@ Total: 30 GB &mdash; exceeds RTX 4000 Ada 20 GB without optimisation.</code></pr
                  y: 75->277.1; 156->277.1; 238->276.5; 319->274.2; 400->270.4; 481->262.8; 562->247.6; 643->217.2 -->
             <polyline points="75,278 156,277.1 238,276.5 319,274.2 400,270.4 481,262.8 562,247.6 643,217.2" class="ln3"/>
             <!-- legend -->
-            <line x1="80" y1="323" x2="108" y2="323" stroke="#76B900" stroke-width="2.5"/>
+            <line x1="80" y1="323" x2="108" y2="323" stroke="#b8b315" stroke-width="2.5"/>
             <text x="113" y="327" class="sl">KV FP16, 32 KV heads</text>
-            <line x1="250" y1="323" x2="278" y2="323" stroke="#ffa657" stroke-width="2" stroke-dasharray="8 4"/>
+            <line x1="250" y1="323" x2="278" y2="323" stroke="#e0b172" stroke-width="2" stroke-dasharray="8 4"/>
             <text x="283" y="327" class="sl">KV INT8, 32 KV heads</text>
-            <line x1="430" y1="323" x2="458" y2="323" stroke="#a5d6ff" stroke-width="2" stroke-dasharray="4 4"/>
+            <line x1="430" y1="323" x2="458" y2="323" stroke="#c9dbe2" stroke-width="2" stroke-dasharray="4 4"/>
             <text x="463" y="327" class="sl">KV FP16, 8 KV heads (GQA)</text>
         </svg>
     </div>
@@ -725,13 +725,13 @@ Total: 30 GB &mdash; exceeds RTX 4000 Ada 20 GB without optimisation.</code></pr
         <svg viewBox="0 0 700 240" width="700" height="240" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <style>
-                    .clbl { fill:#8b949e; font-family:'JetBrains Mono',monospace; font-size:10px; }
-                    .chdr { fill:#e6edf3; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:12px; }
-                    .ca { fill:rgba(118,185,0,0.35); stroke:#76B900; stroke-width:1; }
-                    .cb { fill:rgba(165,214,255,0.3); stroke:#a5d6ff; stroke-width:1; }
-                    .cc { fill:rgba(255,166,87,0.3); stroke:#ffa657; stroke-width:1; }
-                    .id { fill:rgba(50,50,50,0.4); stroke:#444; stroke-width:1; stroke-dasharray:2 2; }
-                    .ax { stroke:#21262d; }
+                    .clbl { fill:#9b9b95; font-family:'JetBrains Mono',monospace; font-size:10px; }
+                    .chdr { fill:#edede7; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:12px; }
+                    .ca { fill:rgba(184,179,21,0.35); stroke:#b8b315; stroke-width:1; }
+                    .cb { fill:rgba(201,219,226,0.3); stroke:#c9dbe2; stroke-width:1; }
+                    .cc { fill:rgba(224,177,114,0.3); stroke:#e0b172; stroke-width:1; }
+                    .id { fill:rgba(64,64,60,0.4); stroke:#4b4b47; stroke-width:1; stroke-dasharray:2 2; }
+                    .ax { stroke:#363633; }
                 </style>
             </defs>
             <text x="8" y="14" class="chdr">Static batching &mdash; GPU idles until every request in the batch finishes</text>
@@ -1222,27 +1222,27 @@ TPOT dominates: decode accounts for ~93% of end-to-end latency.</code></pre>
     <div class="tier-visual">
         <div class="tier-bar">
             <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 1</span>
-            <div class="tier-fill" style="width:560px;background:rgba(118,185,0,0.3);color:#76B900;border:1px solid #76B900">Weight quantisation (INT4 AWQ/GPTQ or INT8 SmoothQuant / FP8) &mdash; largest free win</div>
+            <div class="tier-fill" style="width:560px;background:rgba(184,179,21,0.3);color:#b8b315;border:1px solid #b8b315">Weight quantisation (INT4 AWQ/GPTQ or INT8 SmoothQuant / FP8) &mdash; largest free win</div>
         </div>
         <div class="tier-bar">
             <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 2</span>
-            <div class="tier-fill" style="width:490px;background:rgba(118,185,0,0.22);color:#76B900;border:1px solid #76B90088">Continuous / in-flight batching &mdash; mandatory for variable-length production traffic</div>
+            <div class="tier-fill" style="width:490px;background:rgba(184,179,21,0.22);color:#b8b315;border:1px solid #b8b31588">Continuous / in-flight batching &mdash; mandatory for variable-length production traffic</div>
         </div>
         <div class="tier-bar">
             <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 3</span>
-            <div class="tier-fill" style="width:420px;background:rgba(118,185,0,0.14);color:#76B900;border:1px solid #76B90066">PagedAttention / paged KV &mdash; enables larger effective batch size without fragmentation</div>
+            <div class="tier-fill" style="width:420px;background:rgba(184,179,21,0.14);color:#b8b315;border:1px solid #b8b31566">PagedAttention / paged KV &mdash; enables larger effective batch size without fragmentation</div>
         </div>
         <div class="tier-bar">
             <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 4</span>
-            <div class="tier-fill" style="width:350px;background:rgba(118,185,0,0.08);color:#8b949e;border:1px solid var(--border)">KV cache quantisation (INT8/FP8) &mdash; extends context length on constrained HBM</div>
+            <div class="tier-fill" style="width:350px;background:rgba(184,179,21,0.08);color:#9b9b95;border:1px solid var(--border)">KV cache quantisation (INT8/FP8) &mdash; extends context length on constrained HBM</div>
         </div>
         <div class="tier-bar">
             <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 5</span>
-            <div class="tier-fill" style="width:280px;background:rgba(118,185,0,0.05);color:#8b949e;border:1px solid var(--border)">Model selection with GQA/MQA &mdash; choose architectures that reduce n_kv_heads</div>
+            <div class="tier-fill" style="width:280px;background:rgba(184,179,21,0.05);color:#9b9b95;border:1px solid var(--border)">Model selection with GQA/MQA &mdash; choose architectures that reduce n_kv_heads</div>
         </div>
         <div class="tier-bar">
             <span class="tier-label" style="min-width:110px;font-size:0.72rem">Priority 6</span>
-            <div class="tier-fill" style="width:200px;background:rgba(118,185,0,0.03);color:#8b949e;border:1px solid var(--border)">Speculative decoding &mdash; significant gain if draft acceptance &gt; ~0.7</div>
+            <div class="tier-fill" style="width:200px;background:rgba(184,179,21,0.03);color:#9b9b95;border:1px solid var(--border)">Speculative decoding &mdash; significant gain if draft acceptance &gt; ~0.7</div>
         </div>
     </div>
     <p>Items 1&ndash;3 are essentially universal. FlashAttention is assumed on by default in all modern frameworks and does not appear as a discrete optimisation step. Items 4&ndash;6 require profiling for the specific workload.</p>

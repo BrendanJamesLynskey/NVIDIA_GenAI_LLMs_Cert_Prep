@@ -10,15 +10,15 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-card: #0d1117;
-            --bg-code: #161b22;
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --accent: #76B900;
-            --accent-dim: #76B90044;
-            --accent-glow: #76B90033;
-            --border: #21262d;
+            --bg-primary: #1b1b1a;
+            --bg-card: #212120;
+            --bg-code: #292928;
+            --text-primary: #edede7;
+            --text-secondary: #9b9b95;
+            --accent: #b8b315;
+            --accent-dim: #b8b31544;
+            --accent-glow: #b8b31533;
+            --border: #363633;
             --font-display: 'Space Grotesk', sans-serif;
             --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
             --font-body: 'Inter', sans-serif;
@@ -31,7 +31,7 @@
         a:hover { text-decoration: underline; }
 
         /* ── Sticky top nav ── */
-        nav.top { position: sticky; top: 0; z-index: 100; background: rgba(10, 10, 10, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; }
+        nav.top { position: sticky; top: 0; z-index: 100; background: rgba(27,27,26,0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; }
         nav.top .inner { max-width: var(--max-width); margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem; font-size: 0.85rem; }
         nav.top .brand { font-family: var(--font-mono); color: var(--accent); font-weight: 700; letter-spacing: 0.05em; }
         nav.top .links { margin-left: auto; display: flex; flex-wrap: wrap; gap: 1.25rem; }
@@ -49,8 +49,8 @@
         .cta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
         .btn { display: inline-block; padding: 0.7rem 1.4rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all 0.2s; }
         .btn:hover { text-decoration: none; transform: translateY(-1px); }
-        .btn.primary { background: var(--accent); color: #0a0a0a; border: 1px solid var(--accent); }
-        .btn.primary:hover { background: #8fd000; border-color: #8fd000; }
+        .btn.primary { background: var(--accent); color: #1b1b1a; border: 1px solid var(--accent); }
+        .btn.primary:hover { background: #d1ca24; border-color: #d1ca24; }
         .btn.secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
         .btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
         .btn.ghost { background: transparent; color: var(--text-secondary); border: 1px solid transparent; }
@@ -86,7 +86,7 @@
         .doc-card:hover { border-color: var(--accent); text-decoration: none; }
         .doc-card h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--text-primary); }
         .doc-card p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
-        .doc-card.featured { border-left: 3px solid var(--accent); background: rgba(118, 185, 0, 0.05); }
+        .doc-card.featured { border-left: 3px solid var(--accent); background: rgba(184,179,21,0.05); }
 
         /* ── Callouts ── */
         .callout { background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin: 1.5rem 0; }
