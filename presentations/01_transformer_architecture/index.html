@@ -6,7 +6,7 @@
     <title>Transformer Architecture — NVIDIA GenAI Cert Prep</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Titillium+Web:ital,wght@0,300;0,400;0,600;0,700;1,400;1,700&family=Roboto+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-primary: #1b1b1a;
@@ -18,9 +18,9 @@
             --accent-dim: #b8b31544;
             --accent-glow: #b8b31533;
             --border: #363633;
-            --font-display: 'Space Grotesk', sans-serif;
-            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-            --font-body: 'Inter', sans-serif;
+            --font-display: 'Chakra Petch', sans-serif;
+            --font-mono: 'Roboto Mono', 'Roboto Mono', monospace;
+            --font-body: 'Titillium Web', sans-serif;
             --max-width: 900px;
         }
 
@@ -555,7 +555,7 @@
     <h2>From Token to Logit &mdash; The Full Pipeline</h2>
 
     <div class="canvas-wrap">
-        <svg viewBox="0 0 820 120" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+        <svg viewBox="0 0 820 120" xmlns="http://www.w3.org/2000/svg" style="font-family:'Roboto Mono',monospace;">
             <!-- Background -->
             <rect width="820" height="120" fill="#212120" rx="8"/>
 
@@ -665,7 +665,7 @@
     <p>Token embeddings are a trainable matrix <strong>E &#8712; &#8477;<sup>V&times;d&#8346;</sup></strong>. Each row is the dense vector representation of one vocabulary token. The forward pass is a simple lookup: given token index <em>i</em>, the embedding is the <em>i</em>-th row of E.</p>
 
     <div class="canvas-wrap">
-        <svg viewBox="0 0 600 180" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+        <svg viewBox="0 0 600 180" xmlns="http://www.w3.org/2000/svg" style="font-family:'Roboto Mono',monospace;">
             <rect width="600" height="180" fill="#212120" rx="8"/>
 
             <!-- Matrix representation -->
@@ -765,7 +765,7 @@
 
     <!-- RoPE 2D rotation diagram -->
     <div class="canvas-wrap">
-        <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+        <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="font-family:'Roboto Mono',monospace;">
             <rect width="500" height="200" fill="#212120" rx="8"/>
             <text x="250" y="22" fill="#b8b315" font-size="12" text-anchor="middle" font-weight="600">RoPE: 2D rotation of (q&#8320;, q&#8321;) at position m</text>
 
@@ -903,7 +903,7 @@ head<span class="type">&#7522;</span> = <span class="fn">Attention</span>( Q W<s
     <h2>The Decoder Block &mdash; Pre-Norm and Residuals</h2>
 
     <div class="canvas-wrap">
-        <svg viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+        <svg viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg" style="font-family:'Roboto Mono',monospace;">
             <rect width="600" height="340" fill="#212120" rx="8"/>
 
             <!-- Title -->
